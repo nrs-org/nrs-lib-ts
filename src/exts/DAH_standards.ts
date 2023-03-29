@@ -360,7 +360,7 @@ export class DAH_standards {
                     1.0,
                     this.config.averageAnimeEpisodeDuration
                         .mapUnits((x) => x * 12)
-                        .normalize(),
+                        .rescale(),
                 ];
             }
         })();
@@ -400,7 +400,7 @@ export class DAH_standards {
             context,
             contributors,
             boredom,
-            episodeDuration.mapUnits((x) => x * episodes).normalize(),
+            episodeDuration.mapUnits((x) => x * episodes).rescale(),
             "animeConsumed",
             {
                 animeConsumedArgs: {

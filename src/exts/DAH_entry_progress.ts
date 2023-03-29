@@ -46,7 +46,7 @@ export class DAH_entry_progress {
             context,
             entry,
             status,
-            episodeDuration.mapUnits((x) => x * episodes).normalize(),
+            episodeDuration.mapUnits((x) => x * episodes).rescale(),
             {
                 episodes,
             }
