@@ -17,6 +17,10 @@ export class DAH_entry_progress {
         this.config = config;
     }
 
+    dependencies(): string[] {
+        return [];
+    }
+
     progress(
         _context: Context,
         entry: Entry,
@@ -49,6 +53,7 @@ export class DAH_entry_progress {
         );
     }
 
+    // needs DAH_standards
     consumedProgress(
         context: Context,
         entry: Entry,
@@ -65,6 +70,7 @@ export class DAH_entry_progress {
         );
     }
 
+    // needs DAH_standards
     musicConsumedProgress(context: Context, entry: Entry, duration: Duration) {
         this.consumedProgress(
             context,
@@ -75,6 +81,7 @@ export class DAH_entry_progress {
         );
     }
 
+    // needs DAH_standards
     animeConsumedProgress(
         context: Context,
         entry: Entry,
