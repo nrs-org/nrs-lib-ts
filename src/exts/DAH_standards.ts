@@ -1,5 +1,5 @@
 // @deno-types="npm:@types/luxon"
-import { DateTime, Zone, Duration } from "npm:luxon@3.2.0";
+import { DateTime, Duration } from "npm:luxon@3.2.0";
 
 import { Id, Impact, Relation } from "../data.ts";
 import { Matrix, Vector } from "../math.ts";
@@ -347,7 +347,7 @@ export class DAH_standards {
         boredom: number,
         duration: Duration,
         name = "consumed",
-        meta: Record<string, unknown>
+        meta: Record<string, unknown> = {}
     ): Impact {
         const [baseType, baseScore, baseDuration] = (() => {
             if (duration < Duration.fromObject({ minutes: 10 })) {
@@ -524,13 +524,33 @@ export class DAH_standards {
         };
     }
 
+    featureMusic(
+        context: Context,
+        contributors: Contributors,
+        reference: Id
+    ): Relation {
+        return {
+            contributors,
+            references: new Map([
+                [
+                    reference,
+                    {
+                        kind: "diagonal",
+                        data: vector(context, [[AM, 0.2]]),
+                    },
+                ],
+            ]),
+            DAH_meta: this.#relationMeta({
+                name: "featureMusic",
+            }),
+        };
+    }
+
     remix(
         context: Context,
         contributors: Contributors,
         reference: Id
     ): Relation {
-        const vector = newZeroVector(context);
-
         return {
             contributors,
             references: new Map([
