@@ -80,8 +80,8 @@ export class DAH_serialize_json {
         // deno-lint-ignore no-explicit-any
         objectCallback: () => any
     ) {
-        const encoder = new TextEncoder();
         if (stream !== undefined) {
+            const encoder = new TextEncoder();
             const json = JSON.stringify(
                 objectCallback(),
                 null,
@@ -109,8 +109,12 @@ export class DAH_serialize_json {
             Object.fromEntries(result)
         );
         await this.#serialize(this.config.bulk, () => {
+            const entries: Record<Id, JSONEntry> = {};
+            for(const [id, entry] of data.entries) {
+                entries[id] = toJSONEntry(entry);
+            }
             return {
-                entries: Object.fromEntries(data.entries),
+                entries,
                 impacts: data.impacts.map(toJSONImpact),
                 relations: data.relations.map(toJSONRelation),
                 scores: Object.fromEntries(result),
