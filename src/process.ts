@@ -12,6 +12,10 @@ import {
     DAH_combine_pp,
     ExtConfig_DAH_combine_pp,
 } from "./exts/DAH_combine_pp.ts";
+import {
+    DAH_entry_progress,
+    ExtConfig_DAH_entry_progress,
+} from "./exts/DAH_entry_progress.ts";
 import { DAH_factors, ExtConfig_DAH_factors } from "./exts/DAH_factors.ts";
 import {
     DAH_overall_score,
@@ -49,6 +53,7 @@ export interface ContextExtensions {
     DAH_anime_normalize?: DAH_anime_normalize;
     DAH_combine_pow?: DAH_combine_pow;
     DAH_combine_pp?: DAH_combine_pp;
+    DAH_entry_progress?: DAH_entry_progress;
     DAH_factors?: DAH_factors;
     DAH_overall_score?: DAH_overall_score;
     DAH_serialize_json?: DAH_serialize_json;
@@ -60,6 +65,7 @@ export interface ContextExtensionConfig {
     DAH_anime_normalize?: ExtConfig_DAH_anime_normalize;
     DAH_combine_pow?: ExtConfig_DAH_combine_pow;
     DAH_combine_pp?: ExtConfig_DAH_combine_pp;
+    DAH_entry_progress?: ExtConfig_DAH_entry_progress;
     DAH_factors?: ExtConfig_DAH_factors;
     DAH_overall_score?: ExtConfig_DAH_overall_score;
     DAH_serialize_json?: ExtConfig_DAH_serialize_json;
