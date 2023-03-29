@@ -672,7 +672,7 @@ function mapClampThrow(
     oMin: number,
     oMax: number
 ): number {
-    const factor = (inp - iMin) / (inp - iMax);
+    const factor = (inp - iMin) / (iMax - iMin);
     if (factor < 0.0 || factor > 1.0) {
         throw new Error(
             `value out of bounds: ${factor} not in [${iMin}, ${iMax}] range`
