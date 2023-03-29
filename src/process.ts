@@ -298,7 +298,7 @@ export function combine(
 }
 
 export function newZeroVector(context: Context): Vector {
-    return new Array<number>(context.factorScoreCombineWeight.length);
+    return new Array<number>(context.factorScoreCombineWeight.length).fill(0.0);
 }
 
 export function combineVectors(context: Context, vectors: Vector[]): Vector {
