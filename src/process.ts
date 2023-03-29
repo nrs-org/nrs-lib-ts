@@ -115,6 +115,10 @@ export function newContext(config: ContextConfig): Context {
             extConfigs.DAH_combine_pp,
             (cfg) => new DAH_combine_pp(cfg)
         ),
+        DAH_entry_progress: ifDefined(
+            extConfigs.DAH_entry_progress,
+            (cfg) => new DAH_entry_progress(cfg)
+        ),
         DAH_factors: ifDefined(
             extConfigs.DAH_factors,
             (cfg) => new DAH_factors(cfg)
