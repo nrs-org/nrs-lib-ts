@@ -631,7 +631,7 @@ export class DAH_standards {
             case "duration":
                 return period.length;
             case "fromto":
-                return period.from.diff(period.to);
+                return period.to.diff(period.from).rescale();
         }
     }
 
@@ -655,7 +655,7 @@ export class DAH_standards {
                     type: "fromto",
                     from: period.from,
                     to: period.to,
-                    duration: period.from.diff(period.to).toISO(),
+                    duration: period.to.diff(period.from).rescale().toISO(),
                 };
         }
     }
