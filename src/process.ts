@@ -344,8 +344,8 @@ function calcImpactScore(
         }
     }
 
-    for (const [id, scores] of entryImpactScores) {
-        entries.get(id)!.impactScore = combineVectors(context, scores);
+    for (const [id, entry] of entries) {
+        entry.impactScore = combineVectors(context, entryImpactScores.get(id) ?? []);
     }
 }
 
