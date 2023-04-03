@@ -404,9 +404,6 @@ function calcRelationScore(
         entry: CalcEntry,
         stack = new ReoccurrenceStack<Id>()
     ): Vector {
-        if (entry.entry.id === "A-MAL-38009") {
-            console.debug(entry.relations);
-        }
         const relationScores: Vector[] = [];
         if (stack.push(entry.entry.id)) {
             for (const [relation, weight] of entry.relations) {
