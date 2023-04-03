@@ -1,6 +1,6 @@
 // @deno-types="npm:@types/luxon"
 import { Duration } from "npm:luxon@3.2.0";
-import { Entry } from "../data.ts";
+import { Entry, Impact } from "../data.ts";
 import { Context } from "../process.ts";
 
 export enum EntryStatus {
@@ -60,9 +60,9 @@ export class DAH_entry_progress {
         status: EntryStatus,
         boredom: number,
         duration: Duration
-    ) {
+    ): Impact {
         this.progress(context, entry, status, duration);
-        context.extensions.DAH_standards!.consumed(
+        return context.extensions.DAH_standards!.consumed(
             context,
             new Map([[entry.id, 1.0]]),
             boredom,
@@ -71,8 +71,8 @@ export class DAH_entry_progress {
     }
 
     // needs DAH_standards
-    musicConsumedProgress(context: Context, entry: Entry, duration: Duration) {
-        this.consumedProgress(
+    musicConsumedProgress(context: Context, entry: Entry, duration: Duration): Impact {
+        return this.consumedProgress(
             context,
             entry,
             EntryStatus.Completed,
@@ -88,9 +88,9 @@ export class DAH_entry_progress {
         status: EntryStatus,
         episodes: number,
         episodeDuration: Duration
-    ) {
+    ): Impact {
         this.animeProgress(context, entry, status, episodes, episodeDuration);
-        context.extensions.DAH_standards!.animeConsumed(
+        return context.extensions.DAH_standards!.animeConsumed(
             context,
             new Map([[entry.id, 1.0]]),
             1.0,
