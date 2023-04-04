@@ -470,7 +470,7 @@ export class DAH_standards {
     ): Impact {
         return {
             contributors,
-            score: vector(context, [[AM, musicBase]]),
+            score: vector(context, [[AM, musicBase * 3.0]]),
             DAH_meta: this.#impactMeta({
                 name: "music",
                 musicArgs: {
