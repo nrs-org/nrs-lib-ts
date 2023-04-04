@@ -86,6 +86,7 @@ export class DAH_entry_progress {
         context: Context,
         entry: Entry,
         status: EntryStatus,
+        boredom: number,
         episodes: number,
         episodeDuration: Duration
     ): Impact {
@@ -93,7 +94,7 @@ export class DAH_entry_progress {
         return context.extensions.DAH_standards!.animeConsumed(
             context,
             new Map([[entry.id, 1.0]]),
-            1.0,
+            boredom,
             episodes,
             episodeDuration
         );
