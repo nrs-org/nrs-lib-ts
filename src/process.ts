@@ -267,7 +267,7 @@ function flattenContainContribGraph(
 ): Map<Id, number> {
     const solvedMap = new Map<Id, number>();
     function add(id: Id, weight: number) {
-        solvedMap.set(id, (solvedMap.get(id) ?? 0.0) + weight);
+        solvedMap.set(id, Math.min(1.0, (solvedMap.get(id) ?? 0.0) + weight));
     }
 
     for (const [id, weight] of base) {
