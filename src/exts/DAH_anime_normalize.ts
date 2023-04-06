@@ -1,22 +1,32 @@
-import { Data, Id } from "../data.ts";
+import { Id } from "../data.ts";
 import {
-Context,
+    Context,
     ContextConfig,
     newContext,
     processContext,
     Result,
 } from "../process.ts";
 
+import * as bulk from "./DAH_anime_normalize_bulk.json" assert { type: "json" };
+import { deserializeBulk } from "./DAH_serialize_json.ts";
+
 export class DAH_anime_normalize {
     baseAnimeScores: number[];
 
     constructor(config: ExtConfig_DAH_anime_normalize) {
-        const baseAnimeContext = newContext(config.baseAnimeContextConfig);
-        const results = processContext(
-            baseAnimeContext,
-            config.sampleAnimeData
+        // kind of hacky
+        let [baseAnimeData, results] = deserializeBulk(JSON.stringify(bulk));
+        const baseAnimeIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(
+            (i) => `A-MAL-${i}`
         );
-        this.baseAnimeScores = config.entryIds.map(
+
+        // recalculate scores if `config.baseAnimeContextConfig` is set
+        if (config.baseAnimeContextConfig !== undefined) {
+            const baseAnimeContext = newContext(config.baseAnimeContextConfig);
+            results = processContext(baseAnimeContext, baseAnimeData);
+        }
+
+        this.baseAnimeScores = baseAnimeIds.map(
             (id) => results.get(id)!.DAH_meta.DAH_overall_score as number
         );
     }
@@ -60,6 +70,4 @@ export class DAH_anime_normalize {
 
 export interface ExtConfig_DAH_anime_normalize {
     baseAnimeContextConfig: ContextConfig;
-    sampleAnimeData: Data;
-    entryIds: string[];
 }
