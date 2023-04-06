@@ -15,7 +15,7 @@ export class DAH_anime_normalize {
 
     constructor(config: ExtConfig_DAH_anime_normalize) {
         // kind of hacky
-        let [baseAnimeData, results] = deserializeBulk(JSON.stringify(bulk));
+        let [baseAnimeData, results] = deserializeBulk(JSON.stringify(bulk.default));
         const baseAnimeIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(
             (i) => `A-MAL-${i}`
         );
@@ -69,5 +69,5 @@ export class DAH_anime_normalize {
 }
 
 export interface ExtConfig_DAH_anime_normalize {
-    baseAnimeContextConfig: ContextConfig;
+    baseAnimeContextConfig?: ContextConfig;
 }

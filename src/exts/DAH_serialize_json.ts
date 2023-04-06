@@ -158,7 +158,7 @@ interface Bulk {
     entries: Record<Id, JSONEntry>;
     impacts: JSONImpact[];
     relations: JSONRelation[];
-    results: Record<Id, Result>;
+    scores: Record<Id, Result>;
 }
 
 export function deserializeBulk(json: string): [Data, Map<Id, Result>] {
@@ -174,6 +174,6 @@ export function deserializeBulk(json: string): [Data, Map<Id, Result>] {
             impacts: obj.impacts.map(fromJSONImpact),
             relations: obj.relations.map(fromJSONRelation),
         },
-        new Map<Id, Result>(Object.entries(obj.results)),
+        new Map<Id, Result>(Object.entries(obj.scores)),
     ];
 }
