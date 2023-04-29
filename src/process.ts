@@ -3,7 +3,7 @@ import { Extension } from "./ext.ts";
 import {
     DAH_validator_suppress,
     ExtConfig_DAH_validator_suppress,
-} from "../mod.ts";
+} from "./exts/DAH_validator_suppress.ts";
 import {
     DAH_anime_normalize,
     ExtConfig_DAH_anime_normalize,
@@ -38,6 +38,7 @@ import {
     ExtConfig_DAH_standards,
 } from "./exts/DAH_standards.ts";
 import { add, Matrix, mul, Vector } from "./math.ts";
+import { ifDefined } from "./utils.ts";
 
 export interface Context {
     extensions: ContextExtensions;
@@ -458,17 +459,6 @@ function calcRelationScore(
     for (const [_, entry] of entries) {
         entry.relationScore = calcSingle(entry);
     }
-}
-
-function ifDefined<T, R>(
-    obj: T | undefined,
-    callback: (a: T) => R
-): R | undefined {
-    if (obj === undefined) {
-        return undefined;
-    }
-
-    return callback(obj);
 }
 
 function processResults(

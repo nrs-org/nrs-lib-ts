@@ -4,7 +4,7 @@ import { DateTime, Duration } from "npm:luxon@3.2.0";
 import { Id, Impact, Relation } from "../data.ts";
 import { Matrix, Vector } from "../math.ts";
 import { combine, Context, newZeroVector } from "../process.ts";
-import { assert } from "../utils.ts";
+import { assert, ifDefined } from "../utils.ts";
 import {
     Additional,
     AL,
@@ -168,7 +168,7 @@ export class DAH_standards {
         contributors: Contributors,
         periods: DatePeriod[],
         emotions: WeightedEmotions,
-        singlePADS = true,
+        singlePADS = true
     ): Impact {
         // coefficients
         const a = 0.3,
@@ -177,17 +177,25 @@ export class DAH_standards {
         const days = duration.as("days");
         const base = a * Math.pow(Math.min(10, days), p);
 
-        const impact = this.emotion(context, contributors, base, emotions, "pads", {
-            padsArgs: {
-                duration,
-                days,
-                periods: periods.map((p) => this.#periodMeta(p)),
-            },
-        });
+        const impact = this.emotion(
+            context,
+            contributors,
+            base,
+            emotions,
+            "pads",
+            {
+                padsArgs: {
+                    duration,
+                    days,
+                    periods: periods.map((p) => this.#periodMeta(p)),
+                },
+            }
+        );
 
-        if(!singlePADS) {
-            // deno-lint-ignore no-explicit-any
-            ((impact.DAH_meta as any).DAH_validator_suppress ??= []).push("dah-lone-pads");
+        if (!singlePADS) {
+            ifDefined(context.extensions.DAH_validator_suppress, (ext) => {
+                ext.suppressRule(impact, "dah-lone-pads");
+            });
         }
 
         return impact;

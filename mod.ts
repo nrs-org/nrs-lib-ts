@@ -12,3 +12,4 @@ export * from "./src/exts/DAH_overall_score.ts";
 export * from "./src/exts/DAH_serialize.ts";
 export * from "./src/exts/DAH_serialize_json.ts";
 export * from "./src/exts/DAH_standards.ts";
+export * from "./src/exts/DAH_validator_suppress.ts";
