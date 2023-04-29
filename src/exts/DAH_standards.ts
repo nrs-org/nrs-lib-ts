@@ -167,7 +167,8 @@ export class DAH_standards {
         context: Context,
         contributors: Contributors,
         periods: DatePeriod[],
-        emotions: WeightedEmotions
+        emotions: WeightedEmotions,
+        singlePADS = true,
     ): Impact {
         // coefficients
         const a = 0.3,
@@ -176,13 +177,20 @@ export class DAH_standards {
         const days = duration.as("days");
         const base = a * Math.pow(Math.min(10, days), p);
 
-        return this.emotion(context, contributors, base, emotions, "pads", {
+        const impact = this.emotion(context, contributors, base, emotions, "pads", {
             padsArgs: {
                 duration,
                 days,
                 periods: periods.map((p) => this.#periodMeta(p)),
             },
         });
+
+        if(!singlePADS) {
+            // deno-lint-ignore no-explicit-any
+            ((impact.DAH_meta as any).DAH_validator_suppress ??= []).push("dah-lone-pads");
+        }
+
+        return impact;
     }
 
     // common code for aei/nei
@@ -249,7 +257,7 @@ export class DAH_standards {
     ): Impact[] {
         return [
             this.aei(context, contributors, 1.0, Sign.Positive, emotions),
-            this.pads(context, contributors, periods, emotions),
+            this.pads(context, contributors, periods, emotions, false),
         ];
     }
 
@@ -261,7 +269,7 @@ export class DAH_standards {
     ): Impact[] {
         return [
             this.cry(context, contributors, emotions),
-            this.pads(context, contributors, periods, emotions),
+            this.pads(context, contributors, periods, emotions, false),
         ];
     }
 

@@ -1,6 +1,10 @@
 import { Data, Entry, HasMeta, Id, Relation } from "./data.ts";
 import { Extension } from "./ext.ts";
 import {
+    DAH_validator_suppress,
+    ExtConfig_DAH_validator_suppress,
+} from "../mod.ts";
+import {
     DAH_anime_normalize,
     ExtConfig_DAH_anime_normalize,
 } from "./exts/DAH_anime_normalize.ts";
@@ -59,6 +63,7 @@ export interface ContextExtensions {
     DAH_serialize_json?: DAH_serialize_json;
     DAH_serialize?: DAH_serialize;
     DAH_standards?: DAH_standards;
+    DAH_validator_suppress?: DAH_validator_suppress;
 }
 
 export interface ContextExtensionConfig {
@@ -71,6 +76,7 @@ export interface ContextExtensionConfig {
     DAH_serialize_json?: ExtConfig_DAH_serialize_json;
     DAH_serialize?: ExtConfig_DAH_serialize;
     DAH_standards?: ExtConfig_DAH_standards;
+    DAH_validator_suppress?: ExtConfig_DAH_validator_suppress;
 }
 
 function checkExtensionDependencies(extensions: ContextExtensions) {
@@ -345,7 +351,10 @@ function calcImpactScore(
     }
 
     for (const [id, entry] of entries) {
-        entry.impactScore = combineVectors(context, entryImpactScores.get(id) ?? []);
+        entry.impactScore = combineVectors(
+            context,
+            entryImpactScores.get(id) ?? []
+        );
     }
 }
 
