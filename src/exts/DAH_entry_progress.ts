@@ -1,5 +1,4 @@
-// @deno-types="npm:@types/luxon"
-import { Duration } from "npm:luxon@3.2.0";
+import { Duration } from "../deps.ts";
 import { Entry, Impact } from "../data.ts";
 import { Context } from "../process.ts";
 

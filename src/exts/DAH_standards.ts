@@ -1,6 +1,4 @@
-// @deno-types="npm:@types/luxon"
-import { DateTime, Duration } from "npm:luxon@3.2.0";
-
+import { DateTime, Duration } from "../deps.ts";
 import { Id, Impact, Relation } from "../data.ts";
 import { Matrix, Vector } from "../math.ts";
 import { combine, Context, newZeroVector } from "../process.ts";
