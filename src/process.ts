@@ -146,6 +146,10 @@ export function newContext(config: ContextConfig): Context {
             extConfigs.DAH_standards,
             (cfg) => new DAH_standards(cfg)
         ),
+        DAH_validator_suppress: ifDefined(
+            extConfigs.DAH_validator_suppress,
+            (cfg) => new DAH_validator_suppress(cfg)
+        ),
     };
 
     ifDefined(extensions.DAH_combine_pow, (ext) => {
