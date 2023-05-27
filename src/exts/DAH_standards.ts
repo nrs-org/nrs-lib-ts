@@ -507,14 +507,14 @@ export class DAH_standards {
         return {
             contributors,
             score: vector(context, [[AV, visualScore]]),
-            DAH_meta: {
+            DAH_meta: this.#impactMeta({
                 name: "visual",
                 visualArgs: {
                     visualType: visualType.name,
                     base,
                     unique,
                 },
-            },
+            }),
         };
     }
 
@@ -612,9 +612,9 @@ export class DAH_standards {
                     } as Matrix,
                 ],
             ]),
-            DAH_meta: {
+            DAH_meta: this.#relationMeta({
                 name: "killedBy",
-            },
+            }),
         };
     }
 
@@ -634,9 +634,9 @@ export class DAH_standards {
                     } as Matrix,
                 ],
             ]),
-            DAH_meta: {
+            DAH_meta: this.#relationMeta({
                 name: "gateOpen",
-            },
+            }),
         };
     }
 
