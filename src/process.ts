@@ -20,6 +20,10 @@ import {
     DAH_entry_progress,
     ExtConfig_DAH_entry_progress,
 } from "./exts/DAH_entry_progress.ts";
+import {
+    DAH_entry_title,
+    ExtConfig_DAH_entry_title,
+} from "./exts/DAH_entry_title.ts";
 import { DAH_factors, ExtConfig_DAH_factors } from "./exts/DAH_factors.ts";
 import {
     DAH_overall_score,
@@ -59,6 +63,7 @@ export interface ContextExtensions {
     DAH_combine_pow?: DAH_combine_pow;
     DAH_combine_pp?: DAH_combine_pp;
     DAH_entry_progress?: DAH_entry_progress;
+    DAH_entry_title?: DAH_entry_title;
     DAH_factors?: DAH_factors;
     DAH_overall_score?: DAH_overall_score;
     DAH_serialize_json?: DAH_serialize_json;
@@ -72,6 +77,7 @@ export interface ContextExtensionConfig {
     DAH_combine_pow?: ExtConfig_DAH_combine_pow;
     DAH_combine_pp?: ExtConfig_DAH_combine_pp;
     DAH_entry_progress?: ExtConfig_DAH_entry_progress;
+    DAH_entry_title?: ExtConfig_DAH_entry_title;
     DAH_factors?: ExtConfig_DAH_factors;
     DAH_overall_score?: ExtConfig_DAH_overall_score;
     DAH_serialize_json?: ExtConfig_DAH_serialize_json;
