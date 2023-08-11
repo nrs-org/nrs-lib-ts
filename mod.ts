@@ -7,6 +7,7 @@ export * from "./src/exts/DAH_anime_normalize.ts";
 export * from "./src/exts/DAH_combine_pow.ts";
 export * from "./src/exts/DAH_combine_pp.ts";
 export * from "./src/exts/DAH_entry_progress.ts";
+export * from "./src/exts/DAH_entry_title.ts";
 export * from "./src/exts/DAH_factors.ts";
 export * from "./src/exts/DAH_overall_score.ts";
 export * from "./src/exts/DAH_serialize.ts";
