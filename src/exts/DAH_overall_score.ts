@@ -17,10 +17,10 @@ export class DAH_overall_score {
                 combine(
                     context,
                     subscore.factors.map(
-                        (factor) => vector[factor.factorIndex]
+                        (factor) => vector[factor.factorIndex],
                     ),
-                    subscore.subscoreWeight
-                )
+                    subscore.subscoreWeight,
+                ),
             )
             .reduce((a, b) => a + b);
     }
@@ -29,7 +29,7 @@ export class DAH_overall_score {
         for (const result of results.values()) {
             result.DAH_meta.DAH_overall_score = this.#calcOverallScore(
                 context,
-                result.overallVector
+                result.overallVector,
             );
         }
     }
@@ -39,3 +39,9 @@ export type ExtConfig_DAH_overall_score = Record<
     string | number | symbol,
     never
 >;
+
+declare module "../data.ts" {
+    interface ResultMeta {
+        DAH_overall_score?: number;
+    }
+}

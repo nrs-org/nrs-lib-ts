@@ -8,7 +8,7 @@ function combineUnsigned(arr: number[], factor: number) {
 
     return Math.pow(
         arr.map((x) => Math.pow(x, 1.0 / factor)).reduce((a, b) => a + b, 0.0),
-        factor
+        factor,
     );
 }
 

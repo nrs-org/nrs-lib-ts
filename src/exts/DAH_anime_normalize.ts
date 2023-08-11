@@ -15,9 +15,11 @@ export class DAH_anime_normalize {
 
     constructor(config: ExtConfig_DAH_anime_normalize) {
         // kind of hacky
-        let [baseAnimeData, results] = deserializeBulk(JSON.stringify(bulk.default));
+        let [baseAnimeData, results] = deserializeBulk(
+            JSON.stringify(bulk.default),
+        );
         const baseAnimeIds = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(
-            (i) => `A-MAL-${i}`
+            (i) => `A-MAL-${i}`,
         );
 
         // recalculate scores if `config.baseAnimeContextConfig` is set
@@ -27,7 +29,7 @@ export class DAH_anime_normalize {
         }
 
         this.baseAnimeScores = baseAnimeIds.map(
-            (id) => results.get(id)!.DAH_meta.DAH_overall_score as number
+            (id) => results.get(id)!.DAH_meta.DAH_overall_score as number,
         );
     }
 
@@ -60,7 +62,7 @@ export class DAH_anime_normalize {
 
     postProcess(_: Context, results: Map<Id, Result>) {
         for (const result of results.values()) {
-            const score = result.DAH_meta.DAH_overall_score as number;
+            const score = result.DAH_meta.DAH_overall_score!;
             result.DAH_meta.DAH_anime_normalize = {
                 score: this.#normalizeScore(score),
             };
@@ -70,4 +72,10 @@ export class DAH_anime_normalize {
 
 export interface ExtConfig_DAH_anime_normalize {
     baseAnimeContextConfig?: ContextConfig;
+}
+
+declare module "../data.ts" {
+    interface ResultMeta {
+        DAH_anime_normalize?: { score: number };
+    }
 }

@@ -25,11 +25,11 @@ export class DAH_entry_progress {
         entry: Entry,
         status: EntryStatus,
         progress: Duration,
-        meta: Record<string, unknown> = {}
+        meta: Omit<EntryProgressMeta, "status" | "progress"> = {},
     ) {
-        entry.DAH_meta["DAH_entry_progress"] = {
+        entry.DAH_meta.DAH_entry_progress = {
             status,
-            progress: progress.toISO(),
+            progress: progress.toISO()!,
             ...meta,
         };
     }
@@ -39,7 +39,7 @@ export class DAH_entry_progress {
         entry: Entry,
         status: EntryStatus,
         episodes: number,
-        episodeDuration: Duration
+        episodeDuration: Duration,
     ) {
         this.progress(
             context,
@@ -48,7 +48,7 @@ export class DAH_entry_progress {
             episodeDuration.mapUnits((x) => x * episodes).rescale(),
             {
                 episodes,
-            }
+            },
         );
     }
 
@@ -58,25 +58,29 @@ export class DAH_entry_progress {
         entry: Entry,
         status: EntryStatus,
         boredom: number,
-        duration: Duration
+        duration: Duration,
     ): Impact {
         this.progress(context, entry, status, duration);
         return context.extensions.DAH_standards!.consumed(
             context,
             new Map([[entry.id, 1.0]]),
             boredom,
-            duration
+            duration,
         );
     }
 
     // needs DAH_standards
-    musicConsumedProgress(context: Context, entry: Entry, duration: Duration): Impact {
+    musicConsumedProgress(
+        context: Context,
+        entry: Entry,
+        duration: Duration,
+    ): Impact {
         return this.consumedProgress(
             context,
             entry,
             EntryStatus.Completed,
             1.0,
-            duration
+            duration,
         );
     }
 
@@ -87,7 +91,7 @@ export class DAH_entry_progress {
         status: EntryStatus,
         boredom: number,
         episodes: number,
-        episodeDuration: Duration
+        episodeDuration: Duration,
     ): Impact {
         this.animeProgress(context, entry, status, episodes, episodeDuration);
         return context.extensions.DAH_standards!.animeConsumed(
@@ -95,7 +99,7 @@ export class DAH_entry_progress {
             new Map([[entry.id, 1.0]]),
             boredom,
             episodes,
-            episodeDuration
+            episodeDuration,
         );
     }
 }
@@ -104,3 +108,16 @@ export type ExtConfig_DAH_entry_progress = Record<
     string | number | symbol,
     never
 >;
+
+export interface EntryProgressMeta {
+    status: EntryStatus;
+    progress: string;
+    // anime
+    episodes?: number;
+}
+
+declare module "../data.ts" {
+    interface EntryMeta {
+        DAH_entry_progress?: EntryProgressMeta;
+    }
+}

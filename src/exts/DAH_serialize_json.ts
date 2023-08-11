@@ -1,18 +1,28 @@
-import { Id, Entry, Data, Impact, Relation, HasMeta } from "../data.ts";
+import {
+    Id,
+    Entry,
+    Data,
+    Impact,
+    Relation,
+    HasMeta,
+    RelationMeta,
+    EntryMeta,
+    ImpactMeta,
+} from "../data.ts";
 import { Matrix, Vector } from "../math.ts";
 import { Result } from "../process.ts";
 
-export interface JSONEntry extends HasMeta {
+export interface JSONEntry extends HasMeta<EntryMeta> {
     id: Id;
     children: Record<Id, number>;
 }
 
-export interface JSONImpact extends HasMeta {
+export interface JSONImpact extends HasMeta<ImpactMeta> {
     contributors: Record<Id, number>;
     score: Vector;
 }
 
-export interface JSONRelation extends HasMeta {
+export interface JSONRelation extends HasMeta<RelationMeta> {
     contributors: Record<Id, number>;
     references: Record<Id, Matrix>;
 }
@@ -78,14 +88,14 @@ export class DAH_serialize_json {
     async #serialize(
         stream: WritableStream | undefined,
         // deno-lint-ignore no-explicit-any
-        objectCallback: () => any
+        objectCallback: () => any,
     ) {
         if (stream !== undefined) {
             const encoder = new TextEncoder();
             const json = JSON.stringify(
                 objectCallback(),
                 null,
-                this.config.indent
+                this.config.indent,
             );
             await stream.getWriter().write(encoder.encode(json));
         }
@@ -94,23 +104,23 @@ export class DAH_serialize_json {
     async serialize(data: Data, result: Map<Id, Result>) {
         await this.#serialize(this.config.entries, () => {
             const entries: Record<Id, JSONEntry> = {};
-            for(const [id, entry] of data.entries) {
+            for (const [id, entry] of data.entries) {
                 entries[id] = toJSONEntry(entry);
             }
             return entries;
         });
         await this.#serialize(this.config.impacts, () =>
-            data.impacts.map(toJSONImpact)
+            data.impacts.map(toJSONImpact),
         );
         await this.#serialize(this.config.relations, () =>
-            data.relations.map(toJSONRelation)
+            data.relations.map(toJSONRelation),
         );
         await this.#serialize(this.config.scores, () =>
-            Object.fromEntries(result)
+            Object.fromEntries(result),
         );
         await this.#serialize(this.config.bulk, () => {
             const entries: Record<Id, JSONEntry> = {};
-            for(const [id, entry] of data.entries) {
+            for (const [id, entry] of data.entries) {
                 entries[id] = toJSONEntry(entry);
             }
             return {
@@ -135,8 +145,8 @@ export interface ExtConfig_DAH_serialize_json {
 export function deserializeEntries(json: string): Map<Id, Entry> {
     return new Map<Id, Entry>(
         Object.entries(JSON.parse(json) as Record<string, JSONEntry>).map(
-            ([key, value]) => [key, fromJSONEntry(value)]
-        )
+            ([key, value]) => [key, fromJSONEntry(value)],
+        ),
     );
 }
 
@@ -150,7 +160,7 @@ export function deserializeRelations(json: string): Relation[] {
 
 export function deserializeResults(json: string): Map<Id, Result> {
     return new Map<Id, Result>(
-        Object.entries(JSON.parse(json) as Record<Id, Result>)
+        Object.entries(JSON.parse(json) as Record<Id, Result>),
     );
 }
 
@@ -169,7 +179,7 @@ export function deserializeBulk(json: string): [Data, Map<Id, Result>] {
                 Object.entries(obj.entries).map(([key, value]) => [
                     key,
                     fromJSONEntry(value),
-                ])
+                ]),
             ),
             impacts: obj.impacts.map(fromJSONImpact),
             relations: obj.relations.map(fromJSONRelation),
