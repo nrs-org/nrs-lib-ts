@@ -6,7 +6,7 @@ export interface IRSourceMeta {
 }
 
 export interface HasIRSourceMeta {
-    DAH_ir_source: IRSourceMeta;
+    DAH_ir_source?: IRSourceMeta;
 }
 
 declare module "../data.ts" {
