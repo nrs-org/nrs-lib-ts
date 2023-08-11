@@ -1,7 +1,7 @@
 import { Vector } from "../math.ts";
 
 interface Factor<S> {
-    name: S,
+    name: S;
     factorWeight: number;
     factorIndex: number;
 }
@@ -13,6 +13,8 @@ function factor<S>(name: S, weight: number, index: number): Factor<S> {
         factorIndex: index,
     };
 }
+
+export type EmotionName = "AU" | "AP" | "MU" | "MP" | "CU" | "CP";
 
 export const AU = factor("ActivatedUnpleasant" as const, 0.3, 0);
 export const AP = factor("ActivatedPleasant" as const, 0.4, 1);
@@ -62,9 +64,19 @@ export type Subscore =
     | typeof Art
     | typeof Boredom
     | typeof Additional;
-export type EmotionFactor = typeof AU | typeof AP | typeof MU | typeof MP | typeof CU | typeof CP;
+export type EmotionFactor =
+    | typeof AU
+    | typeof AP
+    | typeof MU
+    | typeof MP
+    | typeof CU
+    | typeof CP;
 export type ArtFactor = typeof AV | typeof AL | typeof AM;
-export type FactorScore = typeof Boredom | typeof Additional | EmotionFactor | ArtFactor;
+export type FactorScore =
+    | typeof Boredom
+    | typeof Additional
+    | EmotionFactor
+    | ArtFactor;
 
 export class DAH_factors {
     constructor(_: ExtConfig_DAH_factors) {}
@@ -75,7 +87,7 @@ export class DAH_factors {
 
     getFactorCombineWeightVector(): Vector {
         return [AU, AP, MU, MP, CU, CP, AL, AV, AM, Boredom, Additional].map(
-            (f) => f.factorWeight
+            (f) => f.factorWeight,
         );
     }
 }

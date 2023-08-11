@@ -1,24 +1,36 @@
 import { Matrix, Vector } from "./math.ts";
 
 // required extensions: DAH_entry_id, DAH_meta
-export type Meta = Record<string, unknown>;
-export type Id = string;
-
-export interface HasMeta {
-    DAH_meta: Meta;
+export interface Meta {
+    _placeholder?: never;
 }
 
-export interface Entry extends HasMeta {
+export type Id = string;
+
+// deno-lint-ignore no-empty-interface
+export interface EntryMeta extends Meta {}
+// deno-lint-ignore no-empty-interface
+export interface ImpactMeta extends Meta {}
+// deno-lint-ignore no-empty-interface
+export interface RelationMeta extends Meta {}
+// deno-lint-ignore no-empty-interface
+export interface ResultMeta extends Meta {}
+
+export interface HasMeta<M extends Meta> {
+    DAH_meta: M;
+}
+
+export interface Entry extends HasMeta<EntryMeta> {
     id: Id;
     children: Map<Id, number>;
 }
 
-export interface Impact extends HasMeta {
+export interface Impact extends HasMeta<ImpactMeta> {
     contributors: Map<Id, number>;
     score: Vector;
 }
 
-export interface Relation extends HasMeta {
+export interface Relation extends HasMeta<RelationMeta> {
     contributors: Map<Id, number>;
     references: Map<Id, Matrix>;
 }

@@ -1,7 +1,7 @@
 import { CombineFunction } from "./process.ts";
 
 export function makeCombineSigned(
-    unsignedFunction: CombineFunction
+    unsignedFunction: CombineFunction,
 ): CombineFunction {
     return (arr, factor) => {
         const positive = arr.filter((x) => x > 0);
@@ -15,7 +15,7 @@ export function makeCombineSigned(
 
 export function assert(
     cond: boolean,
-    msg: string | undefined = undefined
+    msg: string | undefined = undefined,
 ): asserts cond {
     if (!cond) {
         throw new Error(msg || "Assertion failed");
@@ -24,7 +24,7 @@ export function assert(
 
 export function ifDefined<T, R>(
     obj: T | undefined,
-    callback: (a: T) => R
+    callback: (a: T) => R,
 ): R | undefined {
     if (obj === undefined) {
         return undefined;

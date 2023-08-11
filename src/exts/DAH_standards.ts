@@ -1,5 +1,5 @@
 import { DateTime, Duration } from "../deps.ts";
-import { Id, Impact, Relation } from "../data.ts";
+import { Id, Impact, ImpactMeta, Relation, RelationMeta } from "../data.ts";
 import { Matrix, Vector } from "../math.ts";
 import { combine, Context, newZeroVector } from "../process.ts";
 import { assert, ifDefined } from "../utils.ts";
@@ -15,10 +15,12 @@ import {
     CU,
     Emotion,
     EmotionFactor,
+    EmotionName,
     FactorScore,
     MP,
     MU,
 } from "./DAH_factors.ts";
+import { HasIRSourceMeta, IRSourceMeta } from "./DAH_ir_source.ts";
 
 export type WeightedEmotions = [EmotionFactor, number][];
 export type Contributors = Map<Id, number>;
@@ -44,6 +46,19 @@ export interface DurationPeriod {
 
 export type DatePeriod = FromToPeriod | DurationPeriod;
 
+export type VisualTypeName =
+    | "animated"
+    | "rpg3dGame"
+    | "animatedShort"
+    | "animatedMV"
+    | "visualNovel"
+    | "manga"
+    | "animatedGachaCardArt"
+    | "gachaCardArt"
+    | "lightNovel"
+    | "semiAnimatedMV"
+    | "staticMV"
+    | "albumArt";
 export class VisualType {
     static readonly Animated = new VisualType("animated", 1.0);
     static readonly RPG3DGame = new VisualType("rpg3dGame", 1.0);
@@ -53,7 +68,7 @@ export class VisualType {
     static readonly Manga = new VisualType("manga", 0.8);
     static readonly AnimatedGachaCardArt = new VisualType(
         "animatedGachaCardArt",
-        0.7
+        0.7,
     );
     static readonly GachaCardArt = new VisualType("gachaCardArt", 0.6);
     static readonly LightNovel = new VisualType("lightNovel", 0.5);
@@ -62,8 +77,8 @@ export class VisualType {
     static readonly AlbumArt = new VisualType("albumArt", 0.25);
 
     private constructor(
-        public readonly name: string,
-        public readonly factor: number
+        public readonly name: VisualTypeName,
+        public readonly factor: number,
     ) {}
 }
 
@@ -83,7 +98,7 @@ export class DAH_standards {
     #emotionVector(
         context: Context,
         baseScore: number,
-        emotions: WeightedEmotions
+        emotions: WeightedEmotions,
     ): Vector {
         assert(emotions.length > 0, "empty emotion list");
 
@@ -91,7 +106,7 @@ export class DAH_standards {
         const combinedFactor = combine(
             context,
             contribFactors,
-            Emotion.subscoreWeight
+            Emotion.subscoreWeight,
         );
 
         const vector = newZeroVector(context);
@@ -103,7 +118,9 @@ export class DAH_standards {
         return vector;
     }
 
-    #irMeta(meta: Record<string, unknown>): Record<string, unknown> {
+    #irMeta(
+        meta: Omit<IRSourceMeta, "extension" | "version">,
+    ): HasIRSourceMeta {
         return {
             DAH_ir_source: {
                 extension: "DAH_standards",
@@ -113,21 +130,23 @@ export class DAH_standards {
         };
     }
 
-    #impactMeta(meta: Record<string, unknown>): Record<string, unknown> {
-        return this.#irMeta(meta);
+    #impactMeta(meta: Omit<IRSourceMeta, "extension" | "version">): ImpactMeta {
+        return { ...this.#irMeta(meta) };
     }
 
-    #relationMeta(meta: Record<string, unknown>): Record<string, unknown> {
-        return this.#irMeta(meta);
+    #relationMeta(
+        meta: Omit<IRSourceMeta, "extension" | "version">,
+    ): RelationMeta {
+        return { ...this.#irMeta(meta) };
     }
 
-    #emotionPairsToObject(emotions: WeightedEmotions) {
+    #emotionPairsToObject(emotions: WeightedEmotions): EmotionWeights {
         return Object.fromEntries(
-            emotions.map(([emotion, weight]) => [emotion.name, weight])
+            emotions.map(([emotion, weight]) => [emotion.name, weight]),
         );
     }
 
-    #emotionMeta(base: number, emotions: WeightedEmotions) {
+    #emotionMeta(base: number, emotions: WeightedEmotions): EmotionArgs {
         return {
             base,
             emotions: this.#emotionPairsToObject(emotions),
@@ -139,8 +158,8 @@ export class DAH_standards {
         contributors: Contributors,
         base: number,
         emotions: WeightedEmotions,
-        name = "emotion",
-        meta: Record<string, unknown> = {}
+        name = "emotion" as EIName,
+        meta: Omit<IRSourceMeta, "extension" | "version" | "name"> = {},
     ): Impact {
         return {
             contributors,
@@ -156,7 +175,7 @@ export class DAH_standards {
     cry(
         context: Context,
         contributors: Contributors,
-        emotions: WeightedEmotions
+        emotions: WeightedEmotions,
     ): Impact {
         return this.emotion(context, contributors, 4.0, emotions, "cry");
     }
@@ -166,7 +185,7 @@ export class DAH_standards {
         contributors: Contributors,
         periods: DatePeriod[],
         emotions: WeightedEmotions,
-        singlePADS = true
+        singlePADS = true,
     ): Impact {
         // coefficients
         const a = 0.3,
@@ -187,7 +206,7 @@ export class DAH_standards {
                     days,
                     periods: periods.map((p) => this.#periodMeta(p)),
                 },
-            }
+            },
         );
 
         if (!singlePADS) {
@@ -203,11 +222,11 @@ export class DAH_standards {
     xei(
         context: Context,
         contributors: Contributors,
-        name = "xei",
+        name = "xei" as XEIName,
         factor: number,
         sign: Sign,
         base: number,
-        emotions: WeightedEmotions
+        emotions: WeightedEmotions,
     ) {
         return this.emotion(context, contributors, base, emotions, name, {
             xeiArgs: {
@@ -222,7 +241,7 @@ export class DAH_standards {
         contributors: Contributors,
         factor: number,
         sign: Sign,
-        emotions: WeightedEmotions
+        emotions: WeightedEmotions,
     ): Impact {
         const base = mapClampThrow(Math.abs(factor), 0.0, 1.0, 2.0, 3.0) * sign;
         return this.xei(
@@ -232,7 +251,7 @@ export class DAH_standards {
             factor,
             sign,
             base,
-            emotions
+            emotions,
         );
     }
 
@@ -241,7 +260,7 @@ export class DAH_standards {
         contributors: Contributors,
         factor: number,
         sign: Sign,
-        emotions: WeightedEmotions
+        emotions: WeightedEmotions,
     ) {
         const base = mapClampThrow(Math.abs(factor), 0.0, 1.0, 0.0, 2.0) * sign;
         return this.xei(
@@ -251,7 +270,7 @@ export class DAH_standards {
             factor,
             sign,
             base,
-            emotions
+            emotions,
         );
     }
 
@@ -259,7 +278,7 @@ export class DAH_standards {
         context: Context,
         contributors: Contributors,
         periods: DatePeriod[],
-        emotions: WeightedEmotions
+        emotions: WeightedEmotions,
     ): Impact[] {
         return [
             this.aei(context, contributors, 1.0, Sign.Positive, emotions),
@@ -271,7 +290,7 @@ export class DAH_standards {
         context: Context,
         contributors: Contributors,
         periods: DatePeriod[],
-        emotions: WeightedEmotions
+        emotions: WeightedEmotions,
     ): Impact[] {
         return [
             this.cry(context, contributors, emotions),
@@ -283,7 +302,7 @@ export class DAH_standards {
         context: Context,
         contributors: Contributors,
         waifu: string,
-        periods: DatePeriod[]
+        periods: DatePeriod[],
     ) {
         const duration = this.#periodsLength(periods);
         const days = duration.as("days");
@@ -317,7 +336,7 @@ export class DAH_standards {
             contributors,
             1.0,
             [[MP, 1.0]],
-            "jumpscare"
+            "jumpscare",
         );
     }
 
@@ -327,7 +346,7 @@ export class DAH_standards {
             contributors,
             4.0,
             [[MP, 1.0]],
-            "sleeplessNight"
+            "sleeplessNight",
         );
     }
 
@@ -344,7 +363,7 @@ export class DAH_standards {
     interestField(
         context: Context,
         contributors: Contributors,
-        newField: boolean
+        newField: boolean,
     ): Impact {
         return {
             contributors,
@@ -360,17 +379,25 @@ export class DAH_standards {
         contributors: Contributors,
         boredom: number,
         duration: Duration,
-        name = "consumed",
-        meta: Record<string, unknown> = {}
+        name = "consumed" as ConsumedImpactName,
+        meta: Record<string, unknown> = {},
     ): Impact {
         const [baseType, baseScore, baseDuration] = (() => {
             if (duration < Duration.fromObject({ minutes: 10 })) {
-                return ["tiny", 0.1, Duration.fromObject({ minutes: 5 })];
+                return [
+                    "tiny" as const,
+                    0.1,
+                    Duration.fromObject({ minutes: 5 }),
+                ];
             } else if (duration < Duration.fromObject({ hours: 2 })) {
-                return ["short", 0.3, Duration.fromObject({ hours: 2 })];
+                return [
+                    "short" as const,
+                    0.3,
+                    Duration.fromObject({ hours: 2 }),
+                ];
             } else {
                 return [
-                    "long",
+                    "long" as const,
                     1.0,
                     this.config.averageAnimeEpisodeDuration
                         .mapUnits((x) => x * 12)
@@ -390,7 +417,7 @@ export class DAH_standards {
                 name,
                 consumedArgs: {
                     boredom,
-                    duration: duration.toISO(),
+                    duration: duration.toISO()!,
                     baseType,
                     baseScore,
                     baseDuration,
@@ -406,7 +433,7 @@ export class DAH_standards {
         contributors: Contributors,
         boredom: number,
         episodes: number,
-        episodeDuration?: Duration
+        episodeDuration?: Duration,
     ) {
         episodeDuration =
             episodeDuration ?? this.config.averageAnimeEpisodeDuration;
@@ -421,7 +448,7 @@ export class DAH_standards {
                     episodes,
                     episodeDuration,
                 },
-            }
+            },
         );
     }
 
@@ -439,7 +466,7 @@ export class DAH_standards {
         context: Context,
         contributors: Contributors,
         strength: number,
-        periods: DatePeriod[]
+        periods: DatePeriod[],
     ) {
         if (strength < 0.0 || strength >= 2.0) {
             throw new Error(`strength=${strength} not in [0, 2] range`);
@@ -453,7 +480,7 @@ export class DAH_standards {
             memeArgs: {
                 strength,
                 periods: periods.map((p) => this.#periodMeta(p)),
-                duration: duration.toISO(),
+                duration: duration.toISO()!,
             },
         });
     }
@@ -462,7 +489,7 @@ export class DAH_standards {
         context: Context,
         contributors: Contributors,
         value: number,
-        description: string
+        description: string,
     ): Impact {
         return {
             contributors,
@@ -480,7 +507,7 @@ export class DAH_standards {
         context: Context,
         contributors: Contributors,
         // temp standard: 0.5 for Re:Rays (https://www.youtube.com/watch?v=ZJhsfUYThoA, https://projectrst.fandom.com/wiki/Re:Rays)
-        musicBase: number
+        musicBase: number,
     ): Impact {
         return {
             contributors,
@@ -499,7 +526,7 @@ export class DAH_standards {
         contributors: Contributors,
         visualType: VisualType,
         base: number,
-        unique: number
+        unique: number,
     ): Impact {
         const visualScore =
             ((base * (unique + 2.0)) / 3.0) * visualType.factor * 2.0;
@@ -522,7 +549,7 @@ export class DAH_standards {
         context: Context,
         contributors: Contributors,
         personal: number,
-        community: number
+        community: number,
     ): Impact {
         const personalFactor = mapClampThrow(personal, 0.0, 1.0, 0.0, 0.5);
         const communityFactor = mapClampThrow(community, 0.0, 1.0, 0.0, 0.2);
@@ -532,8 +559,10 @@ export class DAH_standards {
             score: vector(context, [[AP, personalFactor + communityFactor]]),
             DAH_meta: this.#impactMeta({
                 name: "osuSong",
-                personal,
-                community,
+                osuSongArgs: {
+                    personal,
+                    community,
+                },
             }),
         };
     }
@@ -541,7 +570,7 @@ export class DAH_standards {
     featureMusic(
         context: Context,
         contributors: Contributors,
-        reference: Id
+        reference: Id,
     ): Relation {
         return {
             contributors,
@@ -563,7 +592,7 @@ export class DAH_standards {
     remix(
         context: Context,
         contributors: Contributors,
-        reference: Id
+        reference: Id,
     ): Relation {
         return {
             contributors,
@@ -587,7 +616,7 @@ export class DAH_standards {
         contributors: Contributors,
         reference: Id,
         potential: number,
-        effect: number
+        effect: number,
     ): Relation {
         return {
             contributors,
@@ -621,7 +650,7 @@ export class DAH_standards {
     gateOpen(
         context: Context,
         contributors: Contributors,
-        reference: Id
+        reference: Id,
     ): Relation {
         return {
             contributors,
@@ -657,19 +686,19 @@ export class DAH_standards {
         return duration;
     }
 
-    #periodMeta(period: DatePeriod): Record<string, unknown> {
+    #periodMeta(period: DatePeriod): PeriodMeta {
         switch (period.type) {
             case "duration":
                 return {
                     type: "duration",
-                    duration: period.length.toISO(),
+                    duration: period.length.toISO()!,
                 };
             case "fromto":
                 return {
                     type: "fromto",
                     from: period.from,
                     to: period.to,
-                    duration: period.to.diff(period.from).rescale().toISO(),
+                    duration: period.to.diff(period.from).rescale().toISO()!,
                 };
         }
     }
@@ -684,12 +713,12 @@ function mapClampThrow(
     iMin: number,
     iMax: number,
     oMin: number,
-    oMax: number
+    oMax: number,
 ): number {
     const factor = (inp - iMin) / (iMax - iMin);
     if (factor < 0.0 || factor > 1.0) {
         throw new Error(
-            `value out of bounds: ${factor} not in [${iMin}, ${iMax}] range`
+            `value out of bounds: ${factor} not in [${iMin}, ${iMax}] range`,
         );
     }
 
@@ -702,4 +731,130 @@ function vector(context: Context, values: [FactorScore, number][]) {
         vec[factor.factorIndex] = value;
     }
     return vec;
+}
+
+type XEIName = "xei" | "aei" | "nei";
+type EIName =
+    | "emotion"
+    | "cry"
+    | "pads"
+    | "waifu"
+    | "ehi"
+    | "epi"
+    | "jumpscare"
+    | "sleeplessNight"
+    | "politics"
+    | "interestField"
+    | "meme"
+    | XEIName;
+type ConsumedImpactName = "consumed" | "animeConsumed";
+type ImpactName =
+    | EIName
+    | "politics"
+    | "interestField"
+    | ConsumedImpactName
+    | "dropped"
+    | "additional";
+
+export type EmotionWeights = Partial<Record<EmotionName, number>>;
+
+export type PeriodMeta =
+    | {
+          type: "duration";
+          duration: string;
+      }
+    | {
+          type: "fromto";
+          from: DateTime;
+          to: DateTime;
+          duration: string;
+      };
+
+export interface EmotionArgs {
+    base: number;
+    emotions: EmotionWeights;
+}
+
+export interface PADSArgs {
+    duration: Duration;
+    days: number;
+    periods: PeriodMeta[];
+}
+
+export interface ConsumedArgs {
+    boredom: number;
+    duration: string;
+    baseType: "tiny" | "short" | "long";
+    baseScore: number;
+    baseDuration: Duration;
+    ratio: number;
+}
+
+export interface XEIArgs {
+    factor: number;
+    sign: "positive" | "negative";
+}
+
+export interface WaifuArgs {
+    waifu: string;
+    duration: Duration;
+    days: number;
+    periods: PeriodMeta[];
+}
+
+export interface EPIArgs {
+    factor: number;
+}
+
+export interface MemeArgs {
+    strength: number;
+    periods: PeriodMeta[];
+    duration: string;
+}
+
+export interface AdditionalArgs {
+    description: string;
+}
+
+type RelationName =
+    | "music"
+    | "visual"
+    | "osuSong"
+    | "featureMusic"
+    | "remix"
+    | "killedBy"
+    | "gateOpen";
+
+export interface MusicArgs {
+    musicBase: number;
+}
+
+export interface VisualArgs {
+    visualType: VisualTypeName;
+    base: number;
+    unique: number;
+}
+
+export interface OsuSongArgs {
+    personal: number;
+    community: number;
+}
+
+type IRName = ImpactName | RelationName;
+
+declare module "./DAH_ir_source.ts" {
+    interface IRSourceMeta {
+        name: IRName;
+        emotionArgs?: EmotionArgs;
+        padsArgs?: PADSArgs;
+        consumedArgs?: ConsumedArgs;
+        xeiArgs?: XEIArgs;
+        waifuArgs?: WaifuArgs;
+        epiArgs?: EPIArgs;
+        memeArgs?: MemeArgs;
+        additionalArgs?: AdditionalArgs;
+        musicArgs?: MusicArgs;
+        visualArgs?: VisualArgs;
+        osuSongArgs?: OsuSongArgs;
+    }
 }
