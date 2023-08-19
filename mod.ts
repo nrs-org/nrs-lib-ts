@@ -11,6 +11,7 @@ export * from "./src/exts/DAH_entry_bestGirl.ts";
 export * from "./src/exts/DAH_entry_progress.ts";
 export * from "./src/exts/DAH_entry_title.ts";
 export * from "./src/exts/DAH_factors.ts";
+export * from "./src/exts/DAH_ir_source.ts";
 export * from "./src/exts/DAH_overall_score.ts";
 export * from "./src/exts/DAH_serialize.ts";
 export * from "./src/exts/DAH_serialize_json.ts";

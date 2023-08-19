@@ -1,5 +1,17 @@
 import {} from "../data.ts";
 
+export class DAH_ir_source {
+    constructor(_: ExtConfig_DAH_ir_source) {}
+
+    dependencies(): string[] {
+        return [];
+    }
+}
+
+export type ExtConfig_DAH_ir_source =
+    | Record<string | number | symbol, never>
+    | undefined;
+
 export interface IRSourceMeta {
     extension: string;
     version: string;
