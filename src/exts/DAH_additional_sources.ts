@@ -20,7 +20,7 @@ export interface AdditionalSources {
     id_AniDB?: number;
     id_VNDB?: number;
     vgmdb?: VGMDBSource;
-    urls: URLSource[];
+    urls?: URLSource[];
 }
 
 export interface VGMDBSource {
