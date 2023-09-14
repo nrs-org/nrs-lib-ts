@@ -1,6 +1,5 @@
 import { Duration } from "../deps.ts";
-import { Entry, Impact } from "../data.ts";
-import { Context } from "../process.ts";
+import { Entry, Impact, Context } from "../mod.ts";
 
 export enum EntryStatus {
     Completed = "Completed",
@@ -116,7 +115,7 @@ export interface EntryProgressMeta {
     episodes?: number;
 }
 
-declare module "../data.ts" {
+declare module "../mod.ts" {
     interface EntryMeta {
         DAH_entry_progress?: EntryProgressMeta;
     }

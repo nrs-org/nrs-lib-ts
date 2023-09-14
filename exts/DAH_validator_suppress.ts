@@ -1,4 +1,4 @@
-import { HasMeta, Meta } from "../data.ts";
+import { HasMeta, Meta } from "../mod.ts";
 
 export class DAH_validator_suppress {
     constructor(_: ExtConfig_DAH_validator_suppress) {}
@@ -27,7 +27,7 @@ export type ExtConfig_DAH_validator_suppress =
     | Record<string | number | symbol, never>
     | undefined;
 
-declare module "../data.ts" {
+declare module "../mod.ts" {
     interface Meta {
         DAH_validator_suppress?: string[];
     }

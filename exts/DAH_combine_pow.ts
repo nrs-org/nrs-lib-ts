@@ -1,5 +1,4 @@
-import { CombineFunction } from "../process.ts";
-import { makeCombineSigned } from "../utils.ts";
+import { CombineFunction, makeCombineSigned } from "../mod.ts";
 
 function combineUnsigned(arr: number[], factor: number) {
     if (factor < 1e-4) {

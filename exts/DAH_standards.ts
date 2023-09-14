@@ -1,8 +1,18 @@
 import { DateTime, Duration } from "../deps.ts";
-import { Id, Impact, ImpactMeta, Relation, RelationMeta } from "../data.ts";
-import { Matrix, Vector } from "../math.ts";
-import { combine, Context, newZeroVector } from "../process.ts";
-import { assert, ifDefined } from "../utils.ts";
+import {
+    Id,
+    Impact,
+    ImpactMeta,
+    Relation,
+    RelationMeta,
+    Matrix,
+    Vector,
+    combine,
+    Context,
+    newZeroVector,
+    assert,
+    ifDefined,
+} from "../mod.ts";
 import {
     Additional,
     AL,
@@ -23,7 +33,7 @@ import {
 import { HasIRSourceMeta, IRSourceMeta } from "./DAH_ir_source.ts";
 
 export type WeightedEmotions = [EmotionFactor, number][];
-export type Contributors = Map<Id, number>;
+export type Contributors = Map<Id, Matrix>;
 export enum Sign {
     Positive = 1,
     Negative = -1,

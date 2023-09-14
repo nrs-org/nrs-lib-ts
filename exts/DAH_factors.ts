@@ -1,4 +1,4 @@
-import { Vector } from "../math.ts";
+import { Vector } from "../mod.ts";
 
 interface Factor<SN, N> {
     shortName: SN;

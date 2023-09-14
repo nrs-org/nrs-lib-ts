@@ -8,9 +8,10 @@ import {
     RelationMeta,
     EntryMeta,
     ImpactMeta,
-} from "../data.ts";
-import { Matrix, Vector } from "../math.ts";
-import { Result } from "../process.ts";
+    Matrix,
+    Vector,
+    Result,
+} from "../mod.ts";
 import { FactorScoreShortName, factorScores } from "./DAH_factors.ts";
 
 type FactorScoreNamePair = `${FactorScoreShortName},${FactorScoreShortName}`;

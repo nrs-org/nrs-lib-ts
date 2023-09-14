@@ -1,4 +1,4 @@
-import { HasMeta, Meta } from "../data.ts";
+import { HasMeta, Meta } from "../mod.ts";
 import { Duration } from "../deps.ts";
 
 export class DAH_additional_sources {
@@ -74,7 +74,7 @@ export type SpotifySource =
           artist: string;
       };
 
-declare module "../data.ts" {
+declare module "../mod.ts" {
     interface EntryMeta {
         // only present in entry meta
         DAH_additional_sources?: AdditionalSources;
