@@ -11,42 +11,167 @@ import {
 } from "../data.ts";
 import { Matrix, Vector } from "../math.ts";
 import { Result } from "../process.ts";
+import { FactorScoreShortName, factorScores } from "./DAH_factors.ts";
+
+type FactorScoreNamePair = `${FactorScoreShortName},${FactorScoreShortName}`;
+type SamePair<T> = T extends infer F extends string ? `${F},${F}` : never;
+type SameEmotionPair = SamePair<FactorScoreShortName>;
+
+type JSONVector = Partial<Record<FactorScoreShortName, number>>;
+type JSONMatrixObject = Partial<
+    Omit<
+        Record<FactorScoreNamePair | FactorScoreShortName, number>,
+        SameEmotionPair
+    >
+>;
+type JSONMatrix = number | JSONMatrixObject;
+
+export function toJSONMatrix(m: Matrix): JSONMatrix {
+    const n = factorScores.length;
+    if (m.kind === "scalar") {
+        return m.data;
+    }
+
+    const matrix: JSONMatrixObject = {};
+    if (m.kind === "diagonal") {
+        for (let i = 0; i < n; ++i) {
+            matrix[factorScores[i].shortName] = m.data[i];
+        }
+    } else {
+        for (let i = 0; i < n; ++i) {
+            for (let j = 0; j < n; ++j) {
+                const key =
+                    i == j
+                        ? factorScores[i].shortName
+                        : `${factorScores[i].shortName},${factorScores[j].shortName}`;
+                const value = m.data[i * n + j];
+                if (Math.abs(value) < 1e-4) {
+                    matrix[key as keyof JSONMatrixObject] = value;
+                }
+            }
+        }
+    }
+
+    return matrix;
+}
+
+export function toJSONVector(vector: Vector): JSONVector {
+    return toJSONMatrix({
+        kind: "diagonal",
+        data: vector,
+    }) as JSONVector;
+}
+
+export function fromJSONMatrix(matrix: JSONMatrix): Matrix {
+    if (typeof matrix === "number") {
+        return {
+            kind: "scalar",
+            data: matrix,
+        };
+    }
+
+    const vector = fromJSONVector(matrix as JSONVector);
+
+    let data: number[] | undefined = undefined;
+    const n = factorScores.length;
+    for (let i = 0; i < n; ++i) {
+        for (let j = 0; j < n; ++j) {
+            if (i === j) {
+                continue;
+            }
+
+            const key =
+                `${factorScores[i].shortName},${factorScores[j].shortName}` as keyof JSONMatrixObject;
+            const value = matrix[key] ?? 0.0;
+
+            if (Math.abs(value) < 1e-4) {
+                continue;
+            }
+
+            if (data === undefined) {
+                data = new Array<number>(n * n).fill(0.0);
+                for (let k = 0; k < n; ++k) {
+                    data[k * (n + 1)] = vector[k];
+                }
+            }
+
+            data[i * n + j] = value;
+        }
+    }
+
+    if (data === undefined) {
+        return {
+            kind: "diagonal",
+            data: vector,
+        };
+    }
+
+    return {
+        kind: "regular",
+        data,
+    };
+}
+
+export function fromJSONVector(jsonVector: JSONVector): Vector {
+    const vector = new Array<number>(factorScores.length);
+    for (let i = 0; i < factorScores.length; ++i) {
+        vector[i] = jsonVector[factorScores[i].shortName] ?? 0.0;
+    }
+    return vector;
+}
 
 export interface JSONEntry extends HasMeta<EntryMeta> {
     id: Id;
-    children: Record<Id, Matrix>;
+    children: Record<Id, JSONMatrix>;
 }
 
 export interface JSONImpact extends HasMeta<ImpactMeta> {
-    contributors: Record<Id, Matrix>;
-    score: Vector;
+    contributors: Record<Id, JSONMatrix>;
+    score: JSONVector;
 }
 
 export interface JSONRelation extends HasMeta<RelationMeta> {
-    contributors: Record<Id, Matrix>;
-    references: Record<Id, Matrix>;
+    contributors: Record<Id, JSONMatrix>;
+    references: Record<Id, JSONMatrix>;
+}
+
+function mapValues<K, V1, V2>(
+    map: Map<K, V1>,
+    transform: (v: V1) => V2,
+): Map<K, V2> {
+    const ret = new Map<K, V2>();
+    for (const [key, value] of map.entries()) {
+        ret.set(key, transform(value));
+    }
+    return ret;
 }
 
 function toJSONEntry(entry: Entry): JSONEntry {
     return {
         id: entry.id,
-        children: Object.fromEntries(entry.children),
+        children: Object.fromEntries(mapValues(entry.children, toJSONMatrix)),
         DAH_meta: entry.DAH_meta,
     };
 }
 
 function toJSONImpact(impact: Impact): JSONImpact {
     return {
-        contributors: Object.fromEntries(impact.contributors),
-        score: impact.score,
+        contributors: Object.fromEntries(
+            mapValues(impact.contributors, toJSONMatrix),
+        ),
+        score: toJSONVector(impact.score),
         DAH_meta: impact.DAH_meta,
     };
 }
 
 function toJSONRelation(relation: Relation): JSONRelation {
     return {
-        contributors: Object.fromEntries(relation.contributors),
-        references: Object.fromEntries(relation.references),
+        contributors: Object.fromEntries(
+            mapValues(relation.contributors, toJSONMatrix),
+        ),
+        references: Object.fromEntries(
+            mapValues(relation.references, toJSONMatrix),
+        ),
         DAH_meta: relation.DAH_meta,
     };
 }
@@ -54,23 +179,35 @@ function toJSONRelation(relation: Relation): JSONRelation {
 function fromJSONEntry(entry: JSONEntry): Entry {
     return {
         id: entry.id,
-        children: new Map(Object.entries(entry.children)),
+        children: mapValues(
+            new Map(Object.entries(entry.children)),
+            fromJSONMatrix,
+        ),
         DAH_meta: entry.DAH_meta,
     };
 }
 
 function fromJSONImpact(impact: JSONImpact): Impact {
     return {
-        contributors: new Map(Object.entries(impact.contributors)),
-        score: impact.score,
+        contributors: mapValues(
+            new Map(Object.entries(impact.contributors)),
+            fromJSONMatrix,
+        ),
+        score: fromJSONVector(impact.score),
         DAH_meta: impact.DAH_meta,
     };
 }
 
 function fromJSONRelation(relation: JSONRelation): Relation {
     return {
-        contributors: new Map(Object.entries(relation.contributors)),
-        references: new Map(Object.entries(relation.references)),
+        contributors: mapValues(
+            new Map(Object.entries(relation.contributors)),
+            fromJSONMatrix,
+        ),
+        references: mapValues(
+            new Map(Object.entries(relation.references)),
+            fromJSONMatrix,
+        ),
         DAH_meta: relation.DAH_meta,
     };
 }
@@ -82,7 +219,7 @@ export class DAH_serialize_json {
     }
 
     dependencies(): string[] {
-        return ["DAH_serialize"];
+        return ["DAH_serialize", "DAH_factors"];
     }
 
     async #serialize(
