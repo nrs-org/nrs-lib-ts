@@ -22,16 +22,16 @@ export interface HasMeta<M extends Meta> {
 
 export interface Entry extends HasMeta<EntryMeta> {
     id: Id;
-    children: Map<Id, number>;
+    children: Map<Id, Matrix>;
 }
 
 export interface Impact extends HasMeta<ImpactMeta> {
-    contributors: Map<Id, number>;
+    contributors: Map<Id, Matrix>;
     score: Vector;
 }
 
 export interface Relation extends HasMeta<RelationMeta> {
-    contributors: Map<Id, number>;
+    contributors: Map<Id, Matrix>;
     references: Map<Id, Matrix>;
 }
 

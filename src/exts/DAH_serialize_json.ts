@@ -14,16 +14,16 @@ import { Result } from "../process.ts";
 
 export interface JSONEntry extends HasMeta<EntryMeta> {
     id: Id;
-    children: Record<Id, number>;
+    children: Record<Id, Matrix>;
 }
 
 export interface JSONImpact extends HasMeta<ImpactMeta> {
-    contributors: Record<Id, number>;
+    contributors: Record<Id, Matrix>;
     score: Vector;
 }
 
 export interface JSONRelation extends HasMeta<RelationMeta> {
-    contributors: Record<Id, number>;
+    contributors: Record<Id, Matrix>;
     references: Record<Id, Matrix>;
 }
 

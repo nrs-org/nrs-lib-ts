@@ -33,7 +33,10 @@ import {
     ExtConfig_DAH_entry_title,
 } from "./exts/DAH_entry_title.ts";
 import { DAH_factors, ExtConfig_DAH_factors } from "./exts/DAH_factors.ts";
-import { DAH_ir_source, ExtConfig_DAH_ir_source } from "./exts/DAH_ir_source.ts"
+import {
+    DAH_ir_source,
+    ExtConfig_DAH_ir_source,
+} from "./exts/DAH_ir_source.ts";
 import {
     DAH_overall_score,
     ExtConfig_DAH_overall_score,
@@ -50,7 +53,15 @@ import {
     DAH_standards,
     ExtConfig_DAH_standards,
 } from "./exts/DAH_standards.ts";
-import { add, Matrix, mul, Vector } from "./math.ts";
+import {
+    add,
+    clampMatrix01,
+    Matrix,
+    matrixAdd,
+    matrixMul,
+    mul,
+    Vector,
+} from "./math.ts";
 import { ifDefined } from "./utils.ts";
 
 export interface Context {
@@ -112,13 +123,13 @@ function checkExtensionDependencies(extensions: ContextExtensions) {
             .dependencies()
             .filter(
                 (name) =>
-                    (extensions as Record<string, unknown>)[name] === undefined
+                    (extensions as Record<string, unknown>)[name] === undefined,
             );
         if (missing.length > 0) {
             throw new Error(
                 `Extension ${name} has missing dependencies: ${missing.join(
-                    ", "
-                )}`
+                    ", ",
+                )}`,
             );
         }
     }
@@ -133,59 +144,59 @@ export function newContext(config: ContextConfig): Context {
     const extensions = {
         DAH_additional_sources: ifDefined(
             extConfigs.DAH_additional_sources,
-            (cfg) => new DAH_additional_sources(cfg)
+            (cfg) => new DAH_additional_sources(cfg),
         ),
         DAH_anime_normalize: ifDefined(
             extConfigs.DAH_anime_normalize,
-            (cfg) => new DAH_anime_normalize(cfg)
+            (cfg) => new DAH_anime_normalize(cfg),
         ),
         DAH_combine_pow: ifDefined(
             extConfigs.DAH_combine_pow,
-            (cfg) => new DAH_combine_pow(cfg)
+            (cfg) => new DAH_combine_pow(cfg),
         ),
         DAH_combine_pp: ifDefined(
             extConfigs.DAH_combine_pp,
-            (cfg) => new DAH_combine_pp(cfg)
+            (cfg) => new DAH_combine_pp(cfg),
         ),
         DAH_entry_bestGirl: ifDefined(
             extConfigs.DAH_entry_bestGirl,
-            (cfg) => new DAH_entry_bestGirl(cfg)
+            (cfg) => new DAH_entry_bestGirl(cfg),
         ),
         DAH_entry_progress: ifDefined(
             extConfigs.DAH_entry_progress,
-            (cfg) => new DAH_entry_progress(cfg)
+            (cfg) => new DAH_entry_progress(cfg),
         ),
         DAH_entry_title: ifDefined(
             extConfigs.DAH_entry_title,
-            (cfg) => new DAH_entry_title(cfg)
+            (cfg) => new DAH_entry_title(cfg),
         ),
         DAH_factors: ifDefined(
             extConfigs.DAH_factors,
-            (cfg) => new DAH_factors(cfg)
+            (cfg) => new DAH_factors(cfg),
         ),
         DAH_ir_source: ifDefined(
             extConfigs.DAH_ir_source,
-            (cfg) => new DAH_ir_source(cfg)
+            (cfg) => new DAH_ir_source(cfg),
         ),
         DAH_overall_score: ifDefined(
             extConfigs.DAH_overall_score,
-            (cfg) => new DAH_overall_score(cfg)
+            (cfg) => new DAH_overall_score(cfg),
         ),
         DAH_serialize: ifDefined(
             extConfigs.DAH_serialize,
-            (cfg) => new DAH_serialize(cfg)
+            (cfg) => new DAH_serialize(cfg),
         ),
         DAH_serialize_json: ifDefined(
             extConfigs.DAH_serialize_json,
-            (cfg) => new DAH_serialize_json(cfg)
+            (cfg) => new DAH_serialize_json(cfg),
         ),
         DAH_standards: ifDefined(
             extConfigs.DAH_standards,
-            (cfg) => new DAH_standards(cfg)
+            (cfg) => new DAH_standards(cfg),
         ),
         DAH_validator_suppress: ifDefined(
             extConfigs.DAH_validator_suppress,
-            (cfg) => new DAH_validator_suppress(cfg)
+            (cfg) => new DAH_validator_suppress(cfg),
         ),
     };
 
@@ -220,9 +231,9 @@ export function newContext(config: ContextConfig): Context {
 
 interface CalcEntry {
     entry: Entry;
-    flattenedChildrenMap: Map<Id, number> | undefined;
-    flattenedParentMap: Map<Id, number>;
-    relations: [Relation, number][];
+    flattenedChildrenMap: Map<Id, Matrix> | undefined;
+    flattenedParentMap: Map<Id, Matrix>;
+    relations: [Relation, Matrix][];
     impactScore: Vector | undefined;
     relationScore: Vector | undefined;
 }
@@ -239,7 +250,7 @@ export function processContext(context: Context, data: Data): Map<Id, Result> {
         calcEntries.set(id, {
             entry: entry,
             flattenedChildrenMap: undefined,
-            flattenedParentMap: new Map<Id, number>(),
+            flattenedParentMap: new Map<Id, Matrix>(),
             relations: [],
             impactScore: undefined,
             relationScore: undefined,
@@ -261,12 +272,12 @@ function isNullEntryId(_: Context, id: Id): boolean {
 function solveContainWeights(
     context: Context,
     _: Data,
-    entries: Map<Id, CalcEntry>
+    entries: Map<Id, CalcEntry>,
 ) {
     function flattenSingle(
         entry: CalcEntry,
-        stack: Id[] = []
-    ): Map<Id, number> {
+        stack: Id[] = [],
+    ): Map<Id, Matrix> {
         if (entry.flattenedChildrenMap !== undefined) {
             return entry.flattenedChildrenMap;
         }
@@ -275,7 +286,7 @@ function solveContainWeights(
         if (idx >= 0) {
             // found
             throw new Error(
-                "circular entry containment: " + stack.slice(idx).join(" -> ")
+                "circular entry containment: " + stack.slice(idx).join(" -> "),
             );
         }
 
@@ -289,7 +300,7 @@ function solveContainWeights(
                     flattenSingle(entry, stack);
                 }
                 return entry?.flattenedChildrenMap;
-            }
+            },
         );
 
         stack.pop();
@@ -309,13 +320,19 @@ function solveContainWeights(
 // common algorithm used in flattening contain/contributing graphs
 function flattenContainContribGraph(
     context: Context,
-    base: Map<Id, number>,
-    idMapCallback: (id: Id) => Map<Id, number> | undefined,
-    throwOnInvalidId = true
-): Map<Id, number> {
-    const solvedMap = new Map<Id, number>();
-    function add(id: Id, weight: number) {
-        solvedMap.set(id, Math.min(1.0, (solvedMap.get(id) ?? 0.0) + weight));
+    base: Map<Id, Matrix>,
+    idMapCallback: (id: Id) => Map<Id, Matrix> | undefined,
+    throwOnInvalidId = true,
+): Map<Id, Matrix> {
+    const solvedMap = new Map<Id, Matrix>();
+    function add(id: Id, weight: Matrix) {
+        let newWeight = solvedMap.get(id);
+        if (newWeight === undefined) {
+            newWeight = weight;
+        } else {
+            newWeight = matrixAdd(newWeight, weight);
+        }
+        solvedMap.set(id, clampMatrix01(newWeight));
     }
 
     for (const [id, weight] of base) {
@@ -329,7 +346,7 @@ function flattenContainContribGraph(
         } else {
             add(id, weight);
             for (const [childId, childWeight] of flattenedIdMap) {
-                add(childId, childWeight * weight);
+                add(childId, matrixMul(childWeight, weight));
             }
         }
     }
@@ -340,7 +357,7 @@ function flattenContainContribGraph(
 export function combine(
     context: Context,
     arr: number[],
-    factor: number
+    factor: number,
 ): number {
     return context.combineFunction(arr, factor);
 }
@@ -355,32 +372,51 @@ export function combineVectors(context: Context, vectors: Vector[]): Vector {
         score[i] = combine(
             context,
             vectors.map((v) => v[i]),
-            context.factorScoreCombineWeight[i]
+            context.factorScoreCombineWeight[i],
         );
     }
     return score;
 }
 
-function buffWeight(context: Context, weight: number): Matrix {
-    return {
-        kind: "diagonal",
-        data: context.factorScoreCombineWeight.map((value) =>
-            Math.pow(weight, value)
-        ),
-    };
+function buffWeight(context: Context, weight: Matrix): Matrix {
+    if (weight.kind === "scalar") {
+        return {
+            kind: "diagonal",
+            data: context.factorScoreCombineWeight.map((value) =>
+                Math.pow(weight.data, value),
+            ),
+        };
+    } else if (weight.kind === "diagonal") {
+        return {
+            kind: "diagonal",
+            data: context.factorScoreCombineWeight.map((value, i) =>
+                Math.pow(weight.data[i], value),
+            ),
+        };
+    } else if (weight.kind === "regular") {
+        const n = Math.floor(Math.sqrt(weight.data.length));
+        return {
+            kind: "regular",
+            data: weight.data.map((value, i) =>
+                Math.pow(value, context.factorScoreCombineWeight[i % n]),
+            ),
+        };
+    }
+
+    throw new Error("unreachable");
 }
 
 function calcImpactScore(
     context: Context,
     data: Data,
-    entries: Map<Id, CalcEntry>
+    entries: Map<Id, CalcEntry>,
 ) {
     const entryImpactScores = new Map<Id, Vector[]>();
     for (const impact of data.impacts) {
         const flattenedContributors = flattenContainContribGraph(
             context,
             impact.contributors,
-            (id) => entries.get(id)?.flattenedParentMap
+            (id) => entries.get(id)?.flattenedParentMap,
         );
         for (const [id, weight] of flattenedContributors) {
             let scores = entryImpactScores.get(id);
@@ -395,7 +431,7 @@ function calcImpactScore(
     for (const [id, entry] of entries) {
         entry.impactScore = combineVectors(
             context,
-            entryImpactScores.get(id) ?? []
+            entryImpactScores.get(id) ?? [],
         );
     }
 }
@@ -403,13 +439,13 @@ function calcImpactScore(
 function fillRelationReferences(
     context: Context,
     data: Data,
-    entries: Map<Id, CalcEntry>
+    entries: Map<Id, CalcEntry>,
 ) {
     for (const relation of data.relations) {
         const flattenedContributors = flattenContainContribGraph(
             context,
             relation.contributors,
-            (id) => entries.get(id)?.flattenedParentMap
+            (id) => entries.get(id)?.flattenedParentMap,
         );
 
         for (const [id, weight] of flattenedContributors) {
@@ -449,11 +485,11 @@ class ReoccurrenceStack<T> {
 function calcRelationScore(
     context: Context,
     _: Data,
-    entries: Map<Id, CalcEntry>
+    entries: Map<Id, CalcEntry>,
 ) {
     function calcSingle(
         entry: CalcEntry,
-        stack = new ReoccurrenceStack<Id>()
+        stack = new ReoccurrenceStack<Id>(),
     ): Vector {
         const relationScores: Vector[] = [];
         if (stack.push(entry.entry.id)) {
@@ -472,21 +508,21 @@ function calcRelationScore(
                     const refRelationScore = calcSingle(ref, stack);
                     const refOverallScore = add(
                         ref.impactScore!,
-                        refRelationScore
+                        refRelationScore,
                     );
                     if (relationScore === undefined) {
                         relationScore = mul(refWeight, refOverallScore);
                     } else {
                         relationScore = add(
                             relationScore,
-                            mul(refWeight, refOverallScore)
+                            mul(refWeight, refOverallScore),
                         );
                     }
                 }
 
                 if (relationScore !== undefined) {
                     relationScores.push(
-                        mul(buffWeight(context, weight), relationScore)
+                        mul(buffWeight(context, weight), relationScore),
                     );
                 }
             }
@@ -505,7 +541,7 @@ function calcRelationScore(
 function processResults(
     context: Context,
     data: Data,
-    entries: Map<Id, CalcEntry>
+    entries: Map<Id, CalcEntry>,
 ): Map<Id, Result> {
     const results = new Map<Id, Result>();
     for (const [id, entry] of entries) {
@@ -521,11 +557,11 @@ function processResults(
     }
 
     ifDefined(context.extensions.DAH_overall_score, (ext) =>
-        ext.postProcess(context, results)
+        ext.postProcess(context, results),
     );
 
     ifDefined(context.extensions.DAH_anime_normalize, (ext) =>
-        ext.postProcess(context, results)
+        ext.postProcess(context, results),
     );
 
     ifDefined(context.extensions.DAH_serialize_json, (ext) => {
