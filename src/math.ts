@@ -1,199 +1,252 @@
-import { assert } from "./utils.ts";
+import { FactorScore, factorScores } from "../exts/DAH_factors.ts";
+import { toJSONMatrix, toJSONVector } from "../exts/DAH_serialize_json.ts";
 
-export type Vector = number[];
-export type Matrix = ScalarMatrix | DiagonalMatrix | RegularMatrix;
-
-export interface ScalarMatrix {
-    kind: "scalar";
-    data: number;
-}
-
-export interface DiagonalMatrix {
-    kind: "diagonal";
-    data: Vector;
-}
-
-export interface RegularMatrix {
-    kind: "regular";
-    // column-major
+export class Vector {
     data: number[];
-}
 
-export function add(lhs: Vector, rhs: Vector) {
-    return lhs.map((x, i) => x + rhs[i]);
-}
-
-export function mul(matrix: Matrix, vector: Vector) {
-    if (matrix.kind === "scalar") {
-        return vector.map((v) => v * matrix.data);
-    } else if (matrix.kind === "diagonal") {
-        assert(vector.length == matrix.data.length);
-        return vector.map((x, i) => x * matrix.data[i]);
-    } else if (matrix.kind === "regular") {
-        const result = new Array<number>(vector.length);
-        result.fill(0);
-        assert(vector.length * vector.length == matrix.data.length);
-        for (let i = 0; i < result.length; i++) {
-            for (let j = 0; j < result.length; j++) {
-                result[i] += matrix.data[i * result.length + j] * vector[j];
-            }
-        }
-        return result;
+    constructor(data: number[]) {
+        this.data = [...data];
     }
 
-    throw new Error("invalid matrix type");
+    copy(): Vector {
+        return new Vector(this.data);
+    }
+
+    add(other: Vector) {
+        if (this.data.length !== other.data.length) {
+            throw new Error("dimension mismatch");
+        }
+
+        for (let i = 0; i < this.data.length; ++i) {
+            this.data[i] += other.data[i];
+        }
+    }
+
+    toJSON() {
+        return toJSONVector(this);
+    }
 }
 
-// all matrices are square in nrs,
-// so this will return the num of rows == num of columns of the matrix
-export function dimensions(m: RegularMatrix | DiagonalMatrix) {
-    if (m.kind === "regular") {
-        const n = Math.floor(Math.sqrt(m.data.length));
-        if (n * n !== m.data.length) {
-            throw new Error(
-                `invalid regular matrix with data size ${m.data.length}`,
+export class ScalarMatrix {
+    data: number;
+
+    constructor(data: number) {
+        this.data = data;
+    }
+
+    copy(): ScalarMatrix {
+        return new ScalarMatrix(this.data);
+    }
+
+    add(other: Matrix): Matrix {
+        if (other instanceof ScalarMatrix) {
+            return new ScalarMatrix(this.data + other.data);
+        }
+
+        return other.add(this);
+    }
+
+    mul<T extends Matrix | Vector>(rhs: T): T {
+        return (
+            rhs instanceof Vector ? this.matvecmul(rhs) : this.matmul(rhs)
+        ) as T;
+    }
+
+    matvecmul(vector: Vector): Vector {
+        return new Vector(vector.data.map((x) => x * this.data));
+    }
+
+    matmul(other: Matrix): Matrix {
+        if (other instanceof ScalarMatrix) {
+            return new ScalarMatrix(this.data * other.data);
+        }
+
+        if (other instanceof DiagonalMatrix) {
+            return new DiagonalMatrix(other.data.map((x) => x * this.data));
+        }
+
+        return new RegularMatrix(other.data.map((x) => x * this.data));
+    }
+
+    clamp01() {
+        this.data = Math.min(1.0, this.data);
+    }
+
+    toJSON() {
+        return this.data;
+    }
+}
+
+export class DiagonalMatrix {
+    data: number[];
+
+    constructor(data: number[]) {
+        this.data = [...data];
+    }
+
+    static fromFactors(factors: [FactorScore, number][]): DiagonalMatrix {
+        const data = new Array<number>(factorScores.length).fill(0);
+        for (const [factor, num] of factors) {
+            data[factor.factorIndex] = num;
+        }
+        return new DiagonalMatrix(data);
+    }
+
+    copy(): DiagonalMatrix {
+        return new DiagonalMatrix(this.data);
+    }
+
+    add(matrix: Matrix): Matrix {
+        if (matrix instanceof ScalarMatrix) {
+            return new DiagonalMatrix(this.data.map((x) => (x += matrix.data)));
+        }
+
+        if (matrix instanceof DiagonalMatrix) {
+            return new DiagonalMatrix(
+                this.data.map((x, i) => (x += matrix.data[i]))
             );
+        }
+
+        return matrix.add(this);
+    }
+
+    mul<T extends Matrix | Vector>(rhs: T): T {
+        return (
+            rhs instanceof Vector ? this.matvecmul(rhs) : this.matmul(rhs)
+        ) as T;
+    }
+
+    matvecmul(vector: Vector): Vector {
+        return new Vector(vector.data.map((x, i) => x * this.data[i]));
+    }
+
+    matmul(matrix: Matrix): Matrix {
+        if (matrix instanceof ScalarMatrix) {
+            return matrix.mul(this);
+        }
+
+        if (matrix instanceof DiagonalMatrix) {
+            return new DiagonalMatrix(
+                this.data.map((x, i) => x * matrix.data[i])
+            );
+        }
+
+        const n = this.data.length;
+        return new RegularMatrix(
+            matrix.data.map((x, i) => x * this.data[i % n])
+        );
+    }
+
+    clamp01() {
+        for (let i = 0; i < this.data.length; ++i) {
+            this.data[i] = Math.min(1.0, this.data[i]);
+        }
+    }
+
+    toJSON() {
+        return toJSONMatrix(this);
+    }
+}
+
+export class RegularMatrix {
+    data: number[];
+
+    constructor(data: number[]) {
+        this.data = [...data];
+    }
+
+    copy(): RegularMatrix {
+        return new RegularMatrix(this.data);
+    }
+
+    dimensions(): number {
+        const n = Math.floor(Math.sqrt(this.data.length));
+        if (n * n !== this.data.length) {
+            throw new Error("invalid matrix size");
         }
 
         return n;
     }
 
-    return m.data.length;
-}
-
-function newScalar(data: number): ScalarMatrix {
-    return {
-        kind: "scalar",
-        data,
-    };
-}
-
-function newDiagonal(data: number[]): DiagonalMatrix {
-    return {
-        kind: "diagonal",
-        data,
-    };
-}
-
-function newRegular(data: number[]): RegularMatrix {
-    return {
-        kind: "regular",
-        data,
-    };
-}
-
-export function clampMatrix01<M extends Matrix>(m: M): M {
-    if (m.kind === "scalar") {
-        return {
-            kind: "scalar",
-            data: Math.min(1.0, m.data),
-        } as M;
-    }
-
-    return {
-        kind: m.kind,
-        data: m.data.map((x) => Math.min(1.0, x)),
-    } as M;
-}
-
-export function matrixMul(lhs: Matrix, rhs: Matrix): Matrix {
-    if (lhs.kind === "scalar") {
-        if (rhs.kind === "scalar") {
-            return newScalar(lhs.data * rhs.data);
-        }
-
-        return {
-            kind: rhs.kind,
-            data: rhs.data.map((x) => x * lhs.data),
-        };
-    }
-
-    if (lhs.kind === "diagonal") {
-        if (rhs.kind === "diagonal") {
-            return newDiagonal(lhs.data.map((x, i) => x * rhs.data[i]));
-        }
-
-        if (rhs.kind === "regular") {
-            return newRegular(
-                rhs.data.map((x, i) => x * lhs.data[i % lhs.data.length]),
+    add(matrix: Matrix): Matrix {
+        if (matrix instanceof ScalarMatrix) {
+            const n = this.dimensions();
+            return new RegularMatrix(
+                this.data.map((x, i) => {
+                    return x + (i % (n + 1) === 0 ? matrix.data : 0);
+                })
             );
         }
 
-        return matrixMul(rhs, lhs);
-    }
-
-    if (lhs.kind === "regular") {
-        if (rhs.kind === "diagonal") {
-            return newRegular(
-                lhs.data.map(
-                    (x, i) => x * rhs.data[Math.floor(i / rhs.data.length)],
-                ),
+        if (matrix instanceof DiagonalMatrix) {
+            const n = this.dimensions();
+            return new RegularMatrix(
+                this.data.map((x, i) => {
+                    return (
+                        x + (i % (n + 1) === 0 ? matrix.data[i / (n + 1)] : 0)
+                    );
+                })
             );
         }
 
-        if (rhs.kind === "regular") {
-            const n = Math.floor(Math.sqrt(lhs.data.length));
-            const result = new Array<number>(n * n);
-            result.fill(0);
-            for (let i = 0; i < n; ++i) {
+        return new RegularMatrix(this.data.map((x, i) => x + matrix.data[i]));
+    }
+
+    clamp01() {
+        for (let i = 0; i < this.data.length; ++i) {
+            this.data[i] = Math.min(1.0, this.data[i]);
+        }
+    }
+
+    mul<T extends Matrix | Vector>(rhs: T): T {
+        return (
+            rhs instanceof Vector ? this.matvecmul(rhs) : this.matmul(rhs)
+        ) as T;
+    }
+
+    matvecmul(vector: Vector): Vector {
+        const n = this.dimensions();
+        return new Vector(
+            vector.data.map((x, i) => {
+                let sum = 0.0;
                 for (let j = 0; j < n; ++j) {
-                    let v = 0;
-                    for (let k = 0; k < n; ++k) {
-                        v += lhs.data[k * n + j] * rhs.data[i * n + k];
-                    }
-                    result[i * n + j] = v;
+                    sum += this.data[i * n + j] * x;
                 }
-            }
-            return newRegular(result);
-        }
-
-        return matrixMul(rhs, lhs);
-    }
-
-    throw new Error("unreachable");
-}
-
-export function matrixAdd(lhs: Matrix, rhs: Matrix): Matrix {
-    if (lhs.kind === "scalar") {
-        if (rhs.kind === "scalar") {
-            return newScalar(lhs.data + rhs.data);
-        }
-
-        if (rhs.kind === "diagonal") {
-            return newDiagonal(rhs.data.map((x) => x + lhs.data));
-        }
-
-        const n = Math.floor(Math.sqrt(rhs.data.length));
-        return newRegular(
-            rhs.data.map((x, i) => x + (i % (n + 1) === 0 ? lhs.data : 0)),
+                return sum;
+            })
         );
     }
 
-    if (lhs.kind === "diagonal") {
-        if (rhs.kind === "diagonal") {
-            return newDiagonal(lhs.data.map((x, i) => x + rhs.data[i]));
+    matmul(matrix: Matrix): Matrix {
+        if (matrix instanceof ScalarMatrix) {
+            return matrix.mul(this);
         }
 
-        if (rhs.kind === "regular") {
-            const n = Math.floor(Math.sqrt(rhs.data.length));
-            return newRegular(
-                rhs.data.map(
-                    (x, i) =>
-                        x + (i % (n + 1) === 0 ? lhs.data[i / (n + 1)] : 0),
-                ),
+        const n = this.dimensions();
+        if (matrix instanceof DiagonalMatrix) {
+            return new RegularMatrix(
+                this.data.map((x, i) => x * matrix.data[Math.floor(i / n)])
             );
         }
 
-        return matrixAdd(rhs, lhs);
-    }
-
-    if (lhs.kind === "regular") {
-        if (rhs.kind === "regular") {
-            return newRegular(lhs.data.map((x, i) => x + rhs.data[i]));
+        const result = new RegularMatrix(new Array<number>(n * n).fill(0));
+        for (let i = 0; i < n; ++i) {
+            for (let j = 0; j < n; ++j) {
+                for (let k = 0; k < n; ++k) {
+                    result.data[i * n + j] +=
+                        this.data[k * n + j] * matrix.data[i * n + k];
+                }
+            }
         }
 
-        return matrixAdd(rhs, lhs);
+        return result;
     }
 
-    throw new Error("unreachable");
+    toJSON() {
+        return toJSONMatrix(this);
+    }
 }
+
+export type Matrix = ScalarMatrix | DiagonalMatrix | RegularMatrix;
+
+export const identityMatrix = new ScalarMatrix(1.0);

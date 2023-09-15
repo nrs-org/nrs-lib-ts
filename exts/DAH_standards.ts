@@ -12,7 +12,9 @@ import {
     newZeroVector,
     assert,
     ifDefined,
+    ScalarMatrix,
 } from "../mod.ts";
+import { DiagonalMatrix } from "../src/math.ts";
 import {
     Additional,
     AL,
@@ -121,7 +123,7 @@ export class DAH_standards {
 
         const vector = newZeroVector(context);
         for (const [emotion, factor] of emotions) {
-            vector[emotion.factorIndex] =
+            vector.data[emotion.factorIndex] =
                 (baseScore * Math.pow(factor, 0.9)) / combinedFactor;
         }
 
@@ -585,13 +587,7 @@ export class DAH_standards {
         return {
             contributors,
             references: new Map([
-                [
-                    reference,
-                    {
-                        kind: "diagonal",
-                        data: vector(context, [[AM, 0.2]]),
-                    },
-                ],
+                [reference, DiagonalMatrix.fromFactors([[AM, 0.2]])],
             ]),
             DAH_meta: this.#relationMeta({
                 name: "featureMusic",
@@ -606,15 +602,7 @@ export class DAH_standards {
     ): Relation {
         return {
             contributors,
-            references: new Map([
-                [
-                    reference,
-                    {
-                        kind: "diagonal",
-                        data: newZeroVector(context).fill(0.2),
-                    } as Matrix,
-                ],
-            ]),
+            references: new Map([[reference, new ScalarMatrix(0.2)]]),
             DAH_meta: this.#relationMeta({
                 name: "remix",
             }),
@@ -633,22 +621,19 @@ export class DAH_standards {
             references: new Map([
                 [
                     reference,
-                    {
-                        kind: "diagonal",
-                        data: vector(context, [
-                            [AP, 0.2],
-                            [AU, 0.1],
-                            [CP, 0.05],
-                            [CU, 0.05],
-                            [MP, 0.2],
-                            [MU, 0.1],
-                            [AV, 0.0],
-                            [AL, 0.1],
-                            [AM, 0.1],
-                            [Boredom, 0.1],
-                            [Additional, 0.0],
-                        ]).map((x) => x * potential * effect * 2.0),
-                    } as Matrix,
+                    DiagonalMatrix.fromFactors([
+                        [AP, 0.2 * potential * effect * 2.0],
+                        [AU, 0.1 * potential * effect * 2.0],
+                        [CP, 0.05 * potential * effect * 2.0],
+                        [CU, 0.05 * potential * effect * 2.0],
+                        [MP, 0.2 * potential * effect * 2.0],
+                        [MU, 0.1 * potential * effect * 2.0],
+                        [AV, 0.0 * potential * effect * 2.0],
+                        [AL, 0.1 * potential * effect * 2.0],
+                        [AM, 0.1 * potential * effect * 2.0],
+                        [Boredom, 0.1 * potential * effect * 2.0],
+                        [Additional, 0.0 * potential * effect * 2.0],
+                    ]),
                 ],
             ]),
             DAH_meta: this.#relationMeta({
@@ -664,15 +649,7 @@ export class DAH_standards {
     ): Relation {
         return {
             contributors,
-            references: new Map([
-                [
-                    reference,
-                    {
-                        kind: "diagonal",
-                        data: newZeroVector(context),
-                    } as Matrix,
-                ],
-            ]),
+            references: new Map([[reference, new ScalarMatrix(0.0)]]),
             DAH_meta: this.#relationMeta({
                 name: "gateOpen",
             }),
@@ -738,7 +715,7 @@ function mapClampThrow(
 function vector(context: Context, values: [FactorScore, number][]) {
     const vec = newZeroVector(context);
     for (const [factor, value] of values) {
-        vec[factor.factorIndex] = value;
+        vec.data[factor.factorIndex] = value;
     }
     return vec;
 }

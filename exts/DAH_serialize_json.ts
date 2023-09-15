@@ -11,6 +11,10 @@ import {
     Matrix,
     Vector,
     Result,
+    ScalarMatrix,
+    DiagonalMatrix,
+    RegularMatrix,
+    ResultMeta,
 } from "../mod.ts";
 import { FactorScoreShortName, factorScores } from "./DAH_factors.ts";
 
@@ -29,14 +33,17 @@ type JSONMatrix = number | JSONMatrixObject;
 
 export function toJSONMatrix(m: Matrix): JSONMatrix {
     const n = factorScores.length;
-    if (m.kind === "scalar") {
+    if (m instanceof ScalarMatrix) {
         return m.data;
     }
 
     const matrix: JSONMatrixObject = {};
-    if (m.kind === "diagonal") {
+    if (m instanceof DiagonalMatrix) {
         for (let i = 0; i < n; ++i) {
-            matrix[factorScores[i].shortName] = m.data[i];
+            const value = m.data[i];
+            if (Math.abs(value) >= 1e-4) {
+                matrix[factorScores[i].shortName] = m.data[i];
+            }
         }
     } else {
         for (let i = 0; i < n; ++i) {
@@ -46,7 +53,7 @@ export function toJSONMatrix(m: Matrix): JSONMatrix {
                         ? factorScores[i].shortName
                         : `${factorScores[i].shortName},${factorScores[j].shortName}`;
                 const value = m.data[i * n + j];
-                if (Math.abs(value) < 1e-4) {
+                if (Math.abs(value) >= 1e-4) {
                     matrix[key as keyof JSONMatrixObject] = value;
                 }
             }
@@ -57,21 +64,15 @@ export function toJSONMatrix(m: Matrix): JSONMatrix {
 }
 
 export function toJSONVector(vector: Vector): JSONVector {
-    return toJSONMatrix({
-        kind: "diagonal",
-        data: vector,
-    }) as JSONVector;
+    return toJSONMatrix(new DiagonalMatrix(vector.data)) as JSONVector;
 }
 
 export function fromJSONMatrix(matrix: JSONMatrix): Matrix {
     if (typeof matrix === "number") {
-        return {
-            kind: "scalar",
-            data: matrix,
-        };
+        return new ScalarMatrix(matrix);
     }
 
-    const vector = fromJSONVector(matrix as JSONVector);
+    const vector = fromJSONVector(matrix as JSONVector).data;
 
     let data: number[] | undefined = undefined;
     const n = factorScores.length;
@@ -101,16 +102,10 @@ export function fromJSONMatrix(matrix: JSONMatrix): Matrix {
     }
 
     if (data === undefined) {
-        return {
-            kind: "diagonal",
-            data: vector,
-        };
+        return new DiagonalMatrix(vector);
     }
 
-    return {
-        kind: "regular",
-        data,
-    };
+    return new RegularMatrix(data);
 }
 
 export function fromJSONVector(jsonVector: JSONVector): Vector {
@@ -118,7 +113,7 @@ export function fromJSONVector(jsonVector: JSONVector): Vector {
     for (let i = 0; i < factorScores.length; ++i) {
         vector[i] = jsonVector[factorScores[i].shortName] ?? 0.0;
     }
-    return vector;
+    return new Vector(vector);
 }
 
 export interface JSONEntry extends HasMeta<EntryMeta> {
@@ -134,6 +129,12 @@ export interface JSONImpact extends HasMeta<ImpactMeta> {
 export interface JSONRelation extends HasMeta<RelationMeta> {
     contributors: Record<Id, JSONMatrix>;
     references: Record<Id, JSONMatrix>;
+}
+
+export interface JSONResult extends HasMeta<ResultMeta> {
+    totalImpact: JSONVector;
+    totalRelation: JSONVector;
+    overallVector: JSONVector;
 }
 
 function mapValues<K, V1, V2>(
@@ -210,6 +211,15 @@ function fromJSONRelation(relation: JSONRelation): Relation {
             fromJSONMatrix,
         ),
         DAH_meta: relation.DAH_meta,
+    };
+}
+
+function fromJSONResult(result: JSONResult): Result {
+    return {
+        totalImpact: fromJSONVector(result.totalImpact),
+        totalRelation: fromJSONVector(result.totalRelation),
+        overallVector: fromJSONVector(result.overallVector),
+        DAH_meta: result.DAH_meta,
     };
 }
 
@@ -306,7 +316,7 @@ interface Bulk {
     entries: Record<Id, JSONEntry>;
     impacts: JSONImpact[];
     relations: JSONRelation[];
-    scores: Record<Id, Result>;
+    scores: Record<Id, JSONResult>;
 }
 
 export function deserializeBulk(json: string): [Data, Map<Id, Result>] {
@@ -322,6 +332,9 @@ export function deserializeBulk(json: string): [Data, Map<Id, Result>] {
             impacts: obj.impacts.map(fromJSONImpact),
             relations: obj.relations.map(fromJSONRelation),
         },
-        new Map<Id, Result>(Object.entries(obj.scores)),
+        mapValues(
+            new Map<Id, JSONResult>(Object.entries(obj.scores)),
+            fromJSONResult,
+        ),
     ];
 }

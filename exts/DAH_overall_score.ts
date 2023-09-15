@@ -14,7 +14,7 @@ export class DAH_overall_score {
                 combine(
                     context,
                     subscore.factors.map(
-                        (factor) => vector[factor.factorIndex],
+                        (factor) => vector.data[factor.factorIndex],
                     ),
                     subscore.subscoreWeight,
                 ),

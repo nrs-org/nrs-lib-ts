@@ -97,7 +97,7 @@ export class DAH_factors {
     }
 
     getFactorCombineWeightVector(): Vector {
-        return factorScores.map((f) => f.factorWeight);
+        return new Vector(factorScores.map((f) => f.factorWeight));
     }
 }
 
