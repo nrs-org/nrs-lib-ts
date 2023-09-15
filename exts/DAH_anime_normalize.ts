@@ -1,11 +1,11 @@
-import { Id } from "../data.ts";
 import {
+    Id,
     Context,
     ContextConfig,
     newContext,
     processContext,
     Result,
-} from "../process.ts";
+} from "../mod.ts";
 
 import * as bulk from "./DAH_anime_normalize_bulk.json" assert { type: "json" };
 import { deserializeBulk } from "./DAH_serialize_json.ts";
@@ -74,7 +74,7 @@ export interface ExtConfig_DAH_anime_normalize {
     baseAnimeContextConfig?: ContextConfig;
 }
 
-declare module "../data.ts" {
+declare module "../mod.ts" {
     interface ResultMeta {
         DAH_anime_normalize?: { score: number };
     }

@@ -1,4 +1,4 @@
-import {} from "../data.ts";
+import {} from "../mod.ts";
 
 export class DAH_ir_source {
     constructor(_: ExtConfig_DAH_ir_source) {}
@@ -21,7 +21,7 @@ export interface HasIRSourceMeta {
     DAH_ir_source?: IRSourceMeta;
 }
 
-declare module "../data.ts" {
+declare module "../mod.ts" {
     // deno-lint-ignore no-empty-interface
     interface ImpactMeta extends HasIRSourceMeta {}
     // deno-lint-ignore no-empty-interface

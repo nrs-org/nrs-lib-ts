@@ -1,6 +1,5 @@
 import { Duration } from "../deps.ts";
-import { Entry, Impact } from "../data.ts";
-import { Context } from "../process.ts";
+import { Entry, Impact, Context, identityMatrix } from "../mod.ts";
 
 export enum EntryStatus {
     Completed = "Completed",
@@ -63,7 +62,7 @@ export class DAH_entry_progress {
         this.progress(context, entry, status, duration);
         return context.extensions.DAH_standards!.consumed(
             context,
-            new Map([[entry.id, 1.0]]),
+            new Map([[entry.id, identityMatrix]]),
             boredom,
             duration,
         );
@@ -96,7 +95,7 @@ export class DAH_entry_progress {
         this.animeProgress(context, entry, status, episodes, episodeDuration);
         return context.extensions.DAH_standards!.animeConsumed(
             context,
-            new Map([[entry.id, 1.0]]),
+            new Map([[entry.id, identityMatrix]]),
             boredom,
             episodes,
             episodeDuration,
@@ -116,7 +115,7 @@ export interface EntryProgressMeta {
     episodes?: number;
 }
 
-declare module "../data.ts" {
+declare module "../mod.ts" {
     interface EntryMeta {
         DAH_entry_progress?: EntryProgressMeta;
     }

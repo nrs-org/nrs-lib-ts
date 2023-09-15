@@ -1,0 +1,2232 @@
+{
+    "entries": {
+        "A-MAL-1": {
+            "id": "A-MAL-1",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-1 base anime (Appalling)",
+                "DAH_entry_progress": {
+                    "status": "Dropped",
+                    "progress": "PT4H",
+                    "episodes": 12
+                }
+            }
+        },
+        "A-MAL-2": {
+            "id": "A-MAL-2",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-2 base anime (Horrible)",
+                "DAH_entry_progress": {
+                    "status": "Dropped",
+                    "progress": "PT4H",
+                    "episodes": 12
+                }
+            }
+        },
+        "A-MAL-3": {
+            "id": "A-MAL-3",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-3 base anime (Very Bad)",
+                "DAH_entry_progress": {
+                    "status": "Dropped",
+                    "progress": "PT4H",
+                    "episodes": 12
+                }
+            }
+        },
+        "A-MAL-4": {
+            "id": "A-MAL-4",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-4 base anime (Bad)",
+                "DAH_entry_progress": {
+                    "status": "Temporarily On-Hold",
+                    "progress": "PT4H",
+                    "episodes": 12
+                }
+            }
+        },
+        "A-MAL-5": {
+            "id": "A-MAL-5",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-5 base anime (Average)",
+                "DAH_entry_progress": {
+                    "status": "Completed",
+                    "progress": "PT4H",
+                    "episodes": 12
+                }
+            }
+        },
+        "A-MAL-6": {
+            "id": "A-MAL-6",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-6 base anime (Fine)",
+                "DAH_entry_progress": {
+                    "status": "Completed",
+                    "progress": "PT4H",
+                    "episodes": 12
+                }
+            }
+        },
+        "A-MAL-7": {
+            "id": "A-MAL-7",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-7 base anime (Good)",
+                "DAH_entry_progress": {
+                    "status": "Completed",
+                    "progress": "PT4H",
+                    "episodes": 12
+                }
+            }
+        },
+        "A-MAL-8": {
+            "id": "A-MAL-8",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-8 base anime (Very Good)",
+                "DAH_entry_progress": {
+                    "status": "Completed",
+                    "progress": "PT4H",
+                    "episodes": 12
+                }
+            }
+        },
+        "A-MAL-9": {
+            "id": "A-MAL-9",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-9 base anime (Great)",
+                "DAH_entry_progress": {
+                    "status": "Completed",
+                    "progress": "PT4H",
+                    "episodes": 12
+                }
+            }
+        },
+        "A-MAL-10": {
+            "id": "A-MAL-10",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-10 base anime (Masterpiece)",
+                "DAH_entry_progress": {
+                    "status": "Completed",
+                    "progress": "PT4H",
+                    "episodes": 12
+                }
+            }
+        },
+        "M-VGMDB-1": {
+            "id": "M-VGMDB-1",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-10 base anime sample music"
+            }
+        },
+        "M-VGMDB-2": {
+            "id": "M-VGMDB-2",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-10 base anime sample music"
+            }
+        },
+        "M-VGMDB-3": {
+            "id": "M-VGMDB-3",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-10 base anime sample music"
+            }
+        },
+        "M-VGMDB-4": {
+            "id": "M-VGMDB-4",
+            "children": {},
+            "DAH_meta": {
+                "DAH_entry_title": "MAL-10 base anime sample music"
+            }
+        }
+    },
+    "impacts": [
+        {
+            "contributors": {
+                "A-MAL-1": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0.2,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "animeConsumed",
+                    "consumedArgs": {
+                        "boredom": 0.2,
+                        "duration": "PT4H",
+                        "baseType": "long",
+                        "baseScore": 1,
+                        "baseDuration": "PT4H",
+                        "ratio": 1
+                    },
+                    "animeConsumedArgs": {
+                        "episodes": 12,
+                        "episodeDuration": "PT20M"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-1": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": -2
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "additional",
+                    "additionalArgs": {
+                        "description": "this shit sucks"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-1": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.1466666666666667,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "visual",
+                    "visualArgs": {
+                        "visualType": "animated",
+                        "base": 0.1,
+                        "unique": 0.2
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-2": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0.4,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "animeConsumed",
+                    "consumedArgs": {
+                        "boredom": 0.4,
+                        "duration": "PT4H",
+                        "baseType": "long",
+                        "baseScore": 1,
+                        "baseDuration": "PT4H",
+                        "ratio": 1
+                    },
+                    "animeConsumedArgs": {
+                        "episodes": 12,
+                        "episodeDuration": "PT20M"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-2": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": -1
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "additional",
+                    "additionalArgs": {
+                        "description": "this shit sucks"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-2": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.2933333333333334,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "visual",
+                    "visualArgs": {
+                        "visualType": "animated",
+                        "base": 0.2,
+                        "unique": 0.2
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-3": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0.5,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "animeConsumed",
+                    "consumedArgs": {
+                        "boredom": 0.5,
+                        "duration": "PT4H",
+                        "baseType": "long",
+                        "baseScore": 1,
+                        "baseDuration": "PT4H",
+                        "ratio": 1
+                    },
+                    "animeConsumedArgs": {
+                        "episodes": 12,
+                        "episodeDuration": "PT20M"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-3": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.44,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "visual",
+                    "visualArgs": {
+                        "visualType": "animated",
+                        "base": 0.3,
+                        "unique": 0.2
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-4": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0.6,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "animeConsumed",
+                    "consumedArgs": {
+                        "boredom": 0.6,
+                        "duration": "PT4H",
+                        "baseType": "long",
+                        "baseScore": 1,
+                        "baseDuration": "PT4H",
+                        "ratio": 1
+                    },
+                    "animeConsumedArgs": {
+                        "episodes": 12,
+                        "episodeDuration": "PT20M"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-4": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.45999999999999996,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "visual",
+                    "visualArgs": {
+                        "visualType": "animated",
+                        "base": 0.3,
+                        "unique": 0.3
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-5": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0.8,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "animeConsumed",
+                    "consumedArgs": {
+                        "boredom": 0.8,
+                        "duration": "PT4H",
+                        "baseType": "long",
+                        "baseScore": 1,
+                        "baseDuration": "PT4H",
+                        "ratio": 1
+                    },
+                    "animeConsumedArgs": {
+                        "episodes": 12,
+                        "episodeDuration": "PT20M"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-5": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.6133333333333333,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "visual",
+                    "visualArgs": {
+                        "visualType": "animated",
+                        "base": 0.4,
+                        "unique": 0.3
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-6": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0.9,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "animeConsumed",
+                    "consumedArgs": {
+                        "boredom": 0.9,
+                        "duration": "PT4H",
+                        "baseType": "long",
+                        "baseScore": 1,
+                        "baseDuration": "PT4H",
+                        "ratio": 1
+                    },
+                    "animeConsumedArgs": {
+                        "episodes": 12,
+                        "episodeDuration": "PT20M"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-6": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 2.1,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "aei",
+                    "emotionArgs": {
+                        "base": 2.1,
+                        "emotions": {
+                            "ActivatedPleasant": 1
+                        }
+                    },
+                    "xeiArgs": {
+                        "factor": 0.1,
+                        "sign": "positive"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-6": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.8333333333333334,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "visual",
+                    "visualArgs": {
+                        "visualType": "animated",
+                        "base": 0.5,
+                        "unique": 0.5
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-7": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "animeConsumed",
+                    "consumedArgs": {
+                        "boredom": 1,
+                        "duration": "PT4H",
+                        "baseType": "long",
+                        "baseScore": 1,
+                        "baseDuration": "PT4H",
+                        "ratio": 1
+                    },
+                    "animeConsumedArgs": {
+                        "episodes": 12,
+                        "episodeDuration": "PT20M"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-7": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 3.5,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "ehi",
+                    "emotionArgs": {
+                        "base": 3.5,
+                        "emotions": {
+                            "ActivatedPleasant": 1
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-7": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.8333333333333334,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "visual",
+                    "visualArgs": {
+                        "visualType": "animated",
+                        "base": 0.5,
+                        "unique": 0.5
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-8": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "animeConsumed",
+                    "consumedArgs": {
+                        "boredom": 1,
+                        "duration": "PT4H",
+                        "baseType": "long",
+                        "baseScore": 1,
+                        "baseDuration": "PT4H",
+                        "ratio": 1
+                    },
+                    "animeConsumedArgs": {
+                        "episodes": 12,
+                        "episodeDuration": "PT20M"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-8": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 4,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "cry",
+                    "emotionArgs": {
+                        "base": 4,
+                        "emotions": {
+                            "CalmingUnpleasant": 1
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-8": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "pads",
+                    "emotionArgs": {
+                        "base": 0,
+                        "emotions": {
+                            "CalmingUnpleasant": 1
+                        }
+                    },
+                    "padsArgs": {
+                        "duration": "PT0S",
+                        "days": 0,
+                        "periods": []
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-8": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 4,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "epi",
+                    "emotionArgs": {
+                        "base": 4,
+                        "emotions": {
+                            "ActivatedPleasant": 1
+                        }
+                    },
+                    "epiArgs": {
+                        "factor": 0.5
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-8": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 1,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "visual",
+                    "visualArgs": {
+                        "visualType": "animated",
+                        "base": 0.6,
+                        "unique": 0.5
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-9": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "animeConsumed",
+                    "consumedArgs": {
+                        "boredom": 1,
+                        "duration": "PT4H",
+                        "baseType": "long",
+                        "baseScore": 1,
+                        "baseDuration": "PT4H",
+                        "ratio": 1
+                    },
+                    "animeConsumedArgs": {
+                        "episodes": 12,
+                        "episodeDuration": "PT20M"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-9": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 4,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "cry",
+                    "emotionArgs": {
+                        "base": 4,
+                        "emotions": {
+                            "CalmingUnpleasant": 1
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-9": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 3.764858921294094,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "pads",
+                    "emotionArgs": {
+                        "base": 3.764858921294094,
+                        "emotions": {
+                            "CalmingUnpleasant": 1
+                        }
+                    },
+                    "padsArgs": {
+                        "duration": "P7D",
+                        "days": 7,
+                        "periods": [
+                            {
+                                "type": "duration",
+                                "duration": "P7D"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-9": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 3.5,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "ehi",
+                    "emotionArgs": {
+                        "base": 3.5,
+                        "emotions": {
+                            "ActivatedPleasant": 1
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-9": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 4.5,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "epi",
+                    "emotionArgs": {
+                        "base": 4.5,
+                        "emotions": {
+                            "ActivatedPleasant": 1
+                        }
+                    },
+                    "epiArgs": {
+                        "factor": 1
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-9": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 1.1666666666666667,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "visual",
+                    "visualArgs": {
+                        "visualType": "animated",
+                        "base": 0.7,
+                        "unique": 0.5
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "animeConsumed",
+                    "consumedArgs": {
+                        "boredom": 1,
+                        "duration": "PT4H",
+                        "baseType": "long",
+                        "baseScore": 1,
+                        "baseDuration": "PT4H",
+                        "ratio": 1
+                    },
+                    "animeConsumedArgs": {
+                        "episodes": 12,
+                        "episodeDuration": "PT20M"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 4,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "cry",
+                    "emotionArgs": {
+                        "base": 4,
+                        "emotions": {
+                            "CalmingUnpleasant": 1
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 5.985786944906639,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "pads",
+                    "emotionArgs": {
+                        "base": 5.985786944906639,
+                        "emotions": {
+                            "CalmingUnpleasant": 1
+                        }
+                    },
+                    "padsArgs": {
+                        "duration": "P10D",
+                        "days": 10,
+                        "periods": [
+                            {
+                                "type": "duration",
+                                "duration": "P10D"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "pads",
+                    "emotionArgs": {
+                        "base": 0,
+                        "emotions": {
+                            "CalmingPleasant": 1
+                        }
+                    },
+                    "padsArgs": {
+                        "duration": "PT0S",
+                        "days": 0,
+                        "periods": []
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 2.75,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "aei",
+                    "emotionArgs": {
+                        "base": 2.75,
+                        "emotions": {
+                            "ModeratePleasant": 1
+                        }
+                    },
+                    "xeiArgs": {
+                        "factor": 0.75,
+                        "sign": "positive"
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 3.5,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "ehi",
+                    "emotionArgs": {
+                        "base": 3.5,
+                        "emotions": {
+                            "ActivatedPleasant": 1
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 4.5,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "epi",
+                    "emotionArgs": {
+                        "base": 4.5,
+                        "emotions": {
+                            "ActivatedPleasant": 1
+                        }
+                    },
+                    "epiArgs": {
+                        "factor": 1
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 1.3333333333333333,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "visual",
+                    "visualArgs": {
+                        "visualType": "animated",
+                        "base": 0.8,
+                        "unique": 0.5
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "M-VGMDB-1": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 1.5,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "music",
+                    "musicArgs": {
+                        "musicBase": 0.5
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "M-VGMDB-2": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 1.7999999999999998,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "music",
+                    "musicArgs": {
+                        "musicBase": 0.6
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "M-VGMDB-3": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 2.0999999999999996,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "music",
+                    "musicArgs": {
+                        "musicBase": 0.7
+                    }
+                }
+            }
+        },
+        {
+            "contributors": {
+                "M-VGMDB-4": 1
+            },
+            "score": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 2.4000000000000004,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "music",
+                    "musicArgs": {
+                        "musicBase": 0.8
+                    }
+                }
+            }
+        }
+    ],
+    "relations": [
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "references": {
+                "M-VGMDB-1": {
+                    "AU": 0,
+                    "AP": 0,
+                    "MU": 0,
+                    "MP": 0,
+                    "CU": 0,
+                    "CP": 0,
+                    "AL": 0,
+                    "AV": 0,
+                    "AM": 0.2,
+                    "B": 0,
+                    "A": 0
+                }
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "featureMusic"
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "references": {
+                "M-VGMDB-2": {
+                    "AU": 0,
+                    "AP": 0,
+                    "MU": 0,
+                    "MP": 0,
+                    "CU": 0,
+                    "CP": 0,
+                    "AL": 0,
+                    "AV": 0,
+                    "AM": 0.2,
+                    "B": 0,
+                    "A": 0
+                }
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "featureMusic"
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "references": {
+                "M-VGMDB-3": {
+                    "AU": 0,
+                    "AP": 0,
+                    "MU": 0,
+                    "MP": 0,
+                    "CU": 0,
+                    "CP": 0,
+                    "AL": 0,
+                    "AV": 0,
+                    "AM": 0.2,
+                    "B": 0,
+                    "A": 0
+                }
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "featureMusic"
+                }
+            }
+        },
+        {
+            "contributors": {
+                "A-MAL-10": 1
+            },
+            "references": {
+                "M-VGMDB-4": {
+                    "AU": 0,
+                    "AP": 0,
+                    "MU": 0,
+                    "MP": 0,
+                    "CU": 0,
+                    "CP": 0,
+                    "AL": 0,
+                    "AV": 0,
+                    "AM": 0.2,
+                    "B": 0,
+                    "A": 0
+                }
+            },
+            "DAH_meta": {
+                "DAH_ir_source": {
+                    "extension": "DAH_standards",
+                    "version": "1.1.1",
+                    "name": "featureMusic"
+                }
+            }
+        }
+    ],
+    "scores": {
+        "A-MAL-1": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.1466666666666667,
+                "AM": 0,
+                "B": 0.2,
+                "A": -2
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.1466666666666667,
+                "AM": 0,
+                "B": 0.2,
+                "A": -2
+            },
+            "DAH_meta": {
+                "DAH_overall_score": -1.6533333333333333
+            }
+        },
+        "A-MAL-2": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.2933333333333334,
+                "AM": 0,
+                "B": 0.4,
+                "A": -1
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.2933333333333334,
+                "AM": 0,
+                "B": 0.4,
+                "A": -1
+            },
+            "DAH_meta": {
+                "DAH_overall_score": -0.30666666666666664
+            }
+        },
+        "A-MAL-3": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.44,
+                "AM": 0,
+                "B": 0.5,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.44,
+                "AM": 0,
+                "B": 0.5,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 0.94
+            }
+        },
+        "A-MAL-4": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.45999999999999996,
+                "AM": 0,
+                "B": 0.6,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.45999999999999996,
+                "AM": 0,
+                "B": 0.6,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 1.06
+            }
+        },
+        "A-MAL-5": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.6133333333333333,
+                "AM": 0,
+                "B": 0.8,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.6133333333333333,
+                "AM": 0,
+                "B": 0.8,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 1.4133333333333333
+            }
+        },
+        "A-MAL-6": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 2.1,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.8333333333333334,
+                "AM": 0,
+                "B": 0.9,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 2.1,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.8333333333333334,
+                "AM": 0,
+                "B": 0.9,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 3.8333333333333335
+            }
+        },
+        "A-MAL-7": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 3.5,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.8333333333333334,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 3.5,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0.8333333333333334,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 5.333333333333333
+            }
+        },
+        "A-MAL-8": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 4,
+                "MU": 0,
+                "MP": 0,
+                "CU": 4,
+                "CP": 0,
+                "AL": 0,
+                "AV": 1,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 4,
+                "MU": 0,
+                "MP": 0,
+                "CU": 4,
+                "CP": 0,
+                "AL": 0,
+                "AV": 1,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 8.4
+            }
+        },
+        "A-MAL-9": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 5.3,
+                "MU": 0,
+                "MP": 0,
+                "CU": 5.505943568517638,
+                "CP": 0,
+                "AL": 0,
+                "AV": 1.1666666666666667,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 5.3,
+                "MU": 0,
+                "MP": 0,
+                "CU": 5.505943568517638,
+                "CP": 0,
+                "AL": 0,
+                "AV": 1.1666666666666667,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 10.770232807777248
+            }
+        },
+        "A-MAL-10": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 5.3,
+                "MU": 0,
+                "MP": 2.75,
+                "CU": 6.394314777962656,
+                "CP": 0,
+                "AL": 0,
+                "AV": 1.3333333333333333,
+                "AM": 0,
+                "B": 1,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0.45876000000000006,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 5.3,
+                "MU": 0,
+                "MP": 2.75,
+                "CU": 6.394314777962656,
+                "CP": 0,
+                "AL": 0,
+                "AV": 1.3333333333333333,
+                "AM": 0.45876000000000006,
+                "B": 1,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 11.906418653399887
+            }
+        },
+        "M-VGMDB-1": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 1.5,
+                "B": 0,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 1.5,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 1.5
+            }
+        },
+        "M-VGMDB-2": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 1.7999999999999998,
+                "B": 0,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 1.7999999999999998,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 1.7999999999999998
+            }
+        },
+        "M-VGMDB-3": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 2.0999999999999996,
+                "B": 0,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 2.0999999999999996,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 2.0999999999999996
+            }
+        },
+        "M-VGMDB-4": {
+            "totalImpact": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 2.4000000000000004,
+                "B": 0,
+                "A": 0
+            },
+            "totalRelation": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 0,
+                "B": 0,
+                "A": 0
+            },
+            "overallVector": {
+                "AU": 0,
+                "AP": 0,
+                "MU": 0,
+                "MP": 0,
+                "CU": 0,
+                "CP": 0,
+                "AL": 0,
+                "AV": 0,
+                "AM": 2.4000000000000004,
+                "B": 0,
+                "A": 0
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 2.4000000000000004
+            }
+        }
+    }
+}

@@ -1,7 +1,4 @@
-import { Id } from "../data.ts";
-import { Vector } from "../math.ts";
-import { combine, Result } from "../process.ts";
-import { Context } from "../process.ts";
+import { Id, Vector, combine, Result, Context } from "../mod.ts";
 import { Additional, Art, Boredom, Emotion } from "./DAH_factors.ts";
 
 export class DAH_overall_score {
@@ -17,7 +14,7 @@ export class DAH_overall_score {
                 combine(
                     context,
                     subscore.factors.map(
-                        (factor) => vector[factor.factorIndex],
+                        (factor) => vector.data[factor.factorIndex],
                     ),
                     subscore.subscoreWeight,
                 ),
@@ -40,7 +37,7 @@ export type ExtConfig_DAH_overall_score = Record<
     never
 >;
 
-declare module "../data.ts" {
+declare module "../mod.ts" {
     interface ResultMeta {
         DAH_overall_score?: number;
     }

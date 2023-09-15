@@ -1,4 +1,5 @@
-import { HasMeta, Meta } from "../data.ts";
+import { HasMeta, Meta } from "../mod.ts";
+import { Duration } from "../deps.ts";
 
 export class DAH_additional_sources {
     constructor(_: ExtConfig_DAH_additional_sources) {}
@@ -20,6 +21,8 @@ export interface AdditionalSources {
     id_AniDB?: number;
     id_VNDB?: number;
     vgmdb?: VGMDBSource;
+    youtube?: YoutubeSource;
+    spotify?: SpotifySource;
     urls?: URLSource[];
 }
 
@@ -36,7 +39,42 @@ export interface URLSource extends HasMeta<Meta> {
     src: string;
 }
 
-declare module "../data.ts" {
+export type YoutubeSource =
+    | YoutubeVideoSource
+    | YoutubePlaylistSource
+    | YoutubeUserSource;
+
+export interface YoutubeVideoSource extends HasMeta<Meta> {
+    video: string;
+    from?: Duration;
+    to?: Duration;
+}
+
+export interface YoutubePlaylistSource extends HasMeta<Meta> {
+    playlist: string;
+}
+
+export type YoutubeUserSource =
+    | {
+          channelId: string;
+          channelHandle?: string;
+      }
+    | {
+          channelHandle: string;
+      };
+
+export type SpotifySource =
+    | {
+          track: string;
+      }
+    | {
+          album: string;
+      }
+    | {
+          artist: string;
+      };
+
+declare module "../mod.ts" {
     interface EntryMeta {
         // only present in entry meta
         DAH_additional_sources?: AdditionalSources;

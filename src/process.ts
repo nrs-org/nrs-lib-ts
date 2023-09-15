@@ -3,60 +3,85 @@ import { Extension } from "./ext.ts";
 import {
     DAH_validator_suppress,
     ExtConfig_DAH_validator_suppress,
-} from "./exts/DAH_validator_suppress.ts";
+} from "../exts/DAH_validator_suppress.ts";
 import {
     DAH_additional_sources,
     ExtConfig_DAH_additional_sources,
-} from "./exts/DAH_additional_sources.ts";
+} from "../exts/DAH_additional_sources.ts";
 import {
     DAH_anime_normalize,
     ExtConfig_DAH_anime_normalize,
-} from "./exts/DAH_anime_normalize.ts";
+} from "../exts/DAH_anime_normalize.ts";
 import {
     DAH_combine_pow,
     ExtConfig_DAH_combine_pow,
-} from "./exts/DAH_combine_pow.ts";
+} from "../exts/DAH_combine_pow.ts";
 import {
     DAH_combine_pp,
     ExtConfig_DAH_combine_pp,
-} from "./exts/DAH_combine_pp.ts";
+} from "../exts/DAH_combine_pp.ts";
 import {
     DAH_entry_bestGirl,
     ExtConfig_DAH_entry_bestGirl,
-} from "./exts/DAH_entry_bestGirl.ts";
+} from "../exts/DAH_entry_bestGirl.ts";
 import {
     DAH_entry_progress,
     ExtConfig_DAH_entry_progress,
-} from "./exts/DAH_entry_progress.ts";
+} from "../exts/DAH_entry_progress.ts";
 import {
     DAH_entry_title,
     ExtConfig_DAH_entry_title,
-} from "./exts/DAH_entry_title.ts";
-import { DAH_factors, ExtConfig_DAH_factors } from "./exts/DAH_factors.ts";
-import { DAH_ir_source, ExtConfig_DAH_ir_source } from "./exts/DAH_ir_source.ts"
+} from "../exts/DAH_entry_title.ts";
+import { DAH_factors, ExtConfig_DAH_factors } from "../exts/DAH_factors.ts";
+import {
+    DAH_ir_source,
+    ExtConfig_DAH_ir_source,
+} from "../exts/DAH_ir_source.ts";
 import {
     DAH_overall_score,
     ExtConfig_DAH_overall_score,
-} from "./exts/DAH_overall_score.ts";
+} from "../exts/DAH_overall_score.ts";
 import {
     DAH_serialize,
     ExtConfig_DAH_serialize,
-} from "./exts/DAH_serialize.ts";
+} from "../exts/DAH_serialize.ts";
 import {
     DAH_serialize_json,
     ExtConfig_DAH_serialize_json,
-} from "./exts/DAH_serialize_json.ts";
+} from "../exts/DAH_serialize_json.ts";
 import {
     DAH_standards,
     ExtConfig_DAH_standards,
-} from "./exts/DAH_standards.ts";
-import { add, Matrix, mul, Vector } from "./math.ts";
+} from "../exts/DAH_standards.ts";
+import {
+    DiagonalMatrix,
+    Matrix,
+    RegularMatrix,
+    ScalarMatrix,
+    Vector,
+} from "./math.ts";
 import { ifDefined } from "./utils.ts";
+
+export class ContextAPI {
+    newVector(data: number[]): Vector {
+        return new Vector(data);
+    }
+    newScalarMatrix(data: number): ScalarMatrix {
+        return new ScalarMatrix(data);
+    }
+    newDiagonalMatrix(data: number[]): DiagonalMatrix {
+        return new DiagonalMatrix(data);
+    }
+    newRegularMatrix(data: number[]): RegularMatrix {
+        return new RegularMatrix(data);
+    }
+}
 
 export interface Context {
     extensions: ContextExtensions;
     combineFunction: CombineFunction;
     factorScoreCombineWeight: Vector;
+    api: ContextAPI;
 }
 
 export type CombineFunction = (arr: number[], factor: number) => number;
@@ -215,14 +240,15 @@ export function newContext(config: ContextConfig): Context {
         extensions,
         combineFunction,
         factorScoreCombineWeight,
+        api: new ContextAPI(),
     };
 }
 
 interface CalcEntry {
     entry: Entry;
-    flattenedChildrenMap: Map<Id, number> | undefined;
-    flattenedParentMap: Map<Id, number>;
-    relations: [Relation, number][];
+    flattenedChildrenMap: Map<Id, Matrix> | undefined;
+    flattenedParentMap: Map<Id, Matrix>;
+    relations: [Relation, Matrix][];
     impactScore: Vector | undefined;
     relationScore: Vector | undefined;
 }
@@ -239,7 +265,7 @@ export function processContext(context: Context, data: Data): Map<Id, Result> {
         calcEntries.set(id, {
             entry: entry,
             flattenedChildrenMap: undefined,
-            flattenedParentMap: new Map<Id, number>(),
+            flattenedParentMap: new Map<Id, Matrix>(),
             relations: [],
             impactScore: undefined,
             relationScore: undefined,
@@ -266,7 +292,7 @@ function solveContainWeights(
     function flattenSingle(
         entry: CalcEntry,
         stack: Id[] = []
-    ): Map<Id, number> {
+    ): Map<Id, Matrix> {
         if (entry.flattenedChildrenMap !== undefined) {
             return entry.flattenedChildrenMap;
         }
@@ -309,13 +335,19 @@ function solveContainWeights(
 // common algorithm used in flattening contain/contributing graphs
 function flattenContainContribGraph(
     context: Context,
-    base: Map<Id, number>,
-    idMapCallback: (id: Id) => Map<Id, number> | undefined,
+    base: Map<Id, Matrix>,
+    idMapCallback: (id: Id) => Map<Id, Matrix> | undefined,
     throwOnInvalidId = true
-): Map<Id, number> {
-    const solvedMap = new Map<Id, number>();
-    function add(id: Id, weight: number) {
-        solvedMap.set(id, Math.min(1.0, (solvedMap.get(id) ?? 0.0) + weight));
+): Map<Id, Matrix> {
+    const solvedMap = new Map<Id, Matrix>();
+    function add(id: Id, weight: Matrix) {
+        weight = weight.copy();
+        const newWeight = solvedMap.get(id);
+        if (newWeight !== undefined) {
+            weight = weight.add(newWeight);
+        }
+        weight.clamp01();
+        solvedMap.set(id, weight);
     }
 
     for (const [id, weight] of base) {
@@ -329,7 +361,7 @@ function flattenContainContribGraph(
         } else {
             add(id, weight);
             for (const [childId, childWeight] of flattenedIdMap) {
-                add(childId, childWeight * weight);
+                add(childId, childWeight.mul(weight));
             }
         }
     }
@@ -346,28 +378,46 @@ export function combine(
 }
 
 export function newZeroVector(context: Context): Vector {
-    return new Array<number>(context.factorScoreCombineWeight.length).fill(0.0);
+    return new Vector(
+        new Array<number>(context.factorScoreCombineWeight.data.length).fill(
+            0.0
+        )
+    );
 }
 
 export function combineVectors(context: Context, vectors: Vector[]): Vector {
     const score = newZeroVector(context);
-    for (let i = 0; i < score.length; i++) {
-        score[i] = combine(
+    for (let i = 0; i < score.data.length; i++) {
+        score.data[i] = combine(
             context,
-            vectors.map((v) => v[i]),
-            context.factorScoreCombineWeight[i]
+            vectors.map((v) => v.data[i]),
+            context.factorScoreCombineWeight.data[i]
         );
     }
     return score;
 }
 
-function buffWeight(context: Context, weight: number): Matrix {
-    return {
-        kind: "diagonal",
-        data: context.factorScoreCombineWeight.map((value) =>
-            Math.pow(weight, value)
-        ),
-    };
+function buffWeight(context: Context, weight: Matrix): Matrix {
+    if (weight instanceof ScalarMatrix) {
+        return new DiagonalMatrix(
+            context.factorScoreCombineWeight.data.map((value) =>
+                Math.pow(weight.data, value)
+            )
+        );
+    } else if (weight instanceof DiagonalMatrix) {
+        return new DiagonalMatrix(
+            context.factorScoreCombineWeight.data.map((value, i) =>
+                Math.pow(weight.data[i], value)
+            )
+        );
+    } else {
+        const n = Math.floor(Math.sqrt(weight.data.length));
+        return new RegularMatrix(
+            weight.data.map((value, i) =>
+                Math.pow(value, context.factorScoreCombineWeight.data[i % n])
+            )
+        );
+    }
 }
 
 function calcImpactScore(
@@ -388,7 +438,7 @@ function calcImpactScore(
                 scores = [];
                 entryImpactScores.set(id, scores);
             }
-            scores.push(mul(buffWeight(context, weight), impact.score));
+            scores.push(buffWeight(context, weight).mul(impact.score));
         }
     }
 
@@ -470,23 +520,18 @@ function calcRelationScore(
                     }
 
                     const refRelationScore = calcSingle(ref, stack);
-                    const refOverallScore = add(
-                        ref.impactScore!,
-                        refRelationScore
-                    );
+                    const refOverallScore = ref.impactScore!.copy();
+                    refOverallScore!.add(refRelationScore);
                     if (relationScore === undefined) {
-                        relationScore = mul(refWeight, refOverallScore);
+                        relationScore = refWeight.mul(refOverallScore);
                     } else {
-                        relationScore = add(
-                            relationScore,
-                            mul(refWeight, refOverallScore)
-                        );
+                        relationScore.add(refWeight.mul(refOverallScore));
                     }
                 }
 
                 if (relationScore !== undefined) {
                     relationScores.push(
-                        mul(buffWeight(context, weight), relationScore)
+                        buffWeight(context, weight).mul(relationScore)
                     );
                 }
             }
@@ -510,10 +555,12 @@ function processResults(
     const results = new Map<Id, Result>();
     for (const [id, entry] of entries) {
         entry.impactScore = entry.impactScore ?? newZeroVector(context);
+        const overallVector = entry.impactScore.copy();
+        overallVector.add(entry.relationScore!);
         const result: Result = {
             totalImpact: entry.impactScore!,
             totalRelation: entry.relationScore!,
-            overallVector: add(entry.impactScore!, entry.relationScore!),
+            overallVector,
             DAH_meta: {},
         };
 

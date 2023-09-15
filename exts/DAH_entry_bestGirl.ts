@@ -1,4 +1,4 @@
-import {} from "../data.ts";
+import {} from "../mod.ts";
 
 export class DAH_entry_bestGirl {
     constructor(_: ExtConfig_DAH_entry_bestGirl) {}
@@ -9,7 +9,7 @@ export class DAH_entry_bestGirl {
 }
 export type ExtConfig_DAH_entry_bestGirl = Record<string | number | symbol, never>;
 
-declare module "../data.ts" {
+declare module "../mod.ts" {
     interface EntryMeta {
         // only present in entry meta
         DAH_entry_bestGirl?: string | undefined;
