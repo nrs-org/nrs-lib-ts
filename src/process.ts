@@ -29,9 +29,21 @@ import {
     ExtConfig_DAH_entry_progress,
 } from "../exts/DAH_entry_progress.ts";
 import {
+    DAH_entry_queue,
+    ExtConfig_DAH_entry_queue,
+} from "../exts/DAH_entry_queue.ts";
+import {
+    DAH_entry_roles,
+    ExtConfig_DAH_entry_roles,
+} from "../exts/DAH_entry_roles.ts";
+import {
     DAH_entry_title,
     ExtConfig_DAH_entry_title,
 } from "../exts/DAH_entry_title.ts";
+import {
+    DAH_entry_type,
+    ExtConfig_DAH_entry_type,
+} from "../exts/DAH_entry_type.ts";
 import { DAH_factors, ExtConfig_DAH_factors } from "../exts/DAH_factors.ts";
 import {
     DAH_ir_source,
@@ -61,6 +73,7 @@ import {
     Vector,
 } from "./math.ts";
 import { ifDefined } from "./utils.ts";
+import { mapAddAssign } from "../mod.ts";
 
 export class ContextAPI {
     newVector(data: number[]): Vector {
@@ -99,7 +112,10 @@ export interface ContextExtensions {
     DAH_combine_pp?: DAH_combine_pp;
     DAH_entry_bestGirl?: DAH_entry_bestGirl;
     DAH_entry_progress?: DAH_entry_progress;
+    DAH_entry_queue?: DAH_entry_queue;
+    DAH_entry_roles?: DAH_entry_roles;
     DAH_entry_title?: DAH_entry_title;
+    DAH_entry_type?: DAH_entry_type;
     DAH_factors?: DAH_factors;
     DAH_ir_source?: DAH_ir_source;
     DAH_overall_score?: DAH_overall_score;
@@ -116,7 +132,10 @@ export interface ContextExtensionConfig {
     DAH_combine_pp?: ExtConfig_DAH_combine_pp;
     DAH_entry_bestGirl?: ExtConfig_DAH_entry_bestGirl;
     DAH_entry_progress?: ExtConfig_DAH_entry_progress;
+    DAH_entry_queue?: ExtConfig_DAH_entry_queue;
+    DAH_entry_roles?: ExtConfig_DAH_entry_roles;
     DAH_entry_title?: ExtConfig_DAH_entry_title;
+    DAH_entry_type?: ExtConfig_DAH_entry_type;
     DAH_factors?: ExtConfig_DAH_factors;
     DAH_ir_source?: ExtConfig_DAH_ir_source;
     DAH_overall_score?: ExtConfig_DAH_overall_score;
@@ -137,13 +156,13 @@ function checkExtensionDependencies(extensions: ContextExtensions) {
             .dependencies()
             .filter(
                 (name) =>
-                    (extensions as Record<string, unknown>)[name] === undefined
+                    (extensions as Record<string, unknown>)[name] === undefined,
             );
         if (missing.length > 0) {
             throw new Error(
                 `Extension ${name} has missing dependencies: ${missing.join(
-                    ", "
-                )}`
+                    ", ",
+                )}`,
             );
         }
     }
@@ -158,59 +177,71 @@ export function newContext(config: ContextConfig): Context {
     const extensions = {
         DAH_additional_sources: ifDefined(
             extConfigs.DAH_additional_sources,
-            (cfg) => new DAH_additional_sources(cfg)
+            (cfg) => new DAH_additional_sources(cfg),
         ),
         DAH_anime_normalize: ifDefined(
             extConfigs.DAH_anime_normalize,
-            (cfg) => new DAH_anime_normalize(cfg)
+            (cfg) => new DAH_anime_normalize(cfg),
         ),
         DAH_combine_pow: ifDefined(
             extConfigs.DAH_combine_pow,
-            (cfg) => new DAH_combine_pow(cfg)
+            (cfg) => new DAH_combine_pow(cfg),
         ),
         DAH_combine_pp: ifDefined(
             extConfigs.DAH_combine_pp,
-            (cfg) => new DAH_combine_pp(cfg)
+            (cfg) => new DAH_combine_pp(cfg),
         ),
         DAH_entry_bestGirl: ifDefined(
             extConfigs.DAH_entry_bestGirl,
-            (cfg) => new DAH_entry_bestGirl(cfg)
+            (cfg) => new DAH_entry_bestGirl(cfg),
         ),
         DAH_entry_progress: ifDefined(
             extConfigs.DAH_entry_progress,
-            (cfg) => new DAH_entry_progress(cfg)
+            (cfg) => new DAH_entry_progress(cfg),
+        ),
+        DAH_entry_queue: ifDefined(
+            extConfigs.DAH_entry_queue,
+            (cfg) => new DAH_entry_queue(cfg),
+        ),
+        DAH_entry_roles: ifDefined(
+            extConfigs.DAH_entry_roles,
+            (cfg) => new DAH_entry_roles(cfg),
         ),
         DAH_entry_title: ifDefined(
             extConfigs.DAH_entry_title,
-            (cfg) => new DAH_entry_title(cfg)
+            (cfg) => new DAH_entry_title(cfg),
+        ),
+        DAH_entry_type: ifDefined(
+            extConfigs.DAH_entry_type,
+            (cfg) => new DAH_entry_type(cfg),
         ),
         DAH_factors: ifDefined(
             extConfigs.DAH_factors,
-            (cfg) => new DAH_factors(cfg)
+            (cfg) => new DAH_factors(cfg),
         ),
         DAH_ir_source: ifDefined(
             extConfigs.DAH_ir_source,
-            (cfg) => new DAH_ir_source(cfg)
+            (cfg) => new DAH_ir_source(cfg),
         ),
         DAH_overall_score: ifDefined(
             extConfigs.DAH_overall_score,
-            (cfg) => new DAH_overall_score(cfg)
+            (cfg) => new DAH_overall_score(cfg),
         ),
         DAH_serialize: ifDefined(
             extConfigs.DAH_serialize,
-            (cfg) => new DAH_serialize(cfg)
+            (cfg) => new DAH_serialize(cfg),
         ),
         DAH_serialize_json: ifDefined(
             extConfigs.DAH_serialize_json,
-            (cfg) => new DAH_serialize_json(cfg)
+            (cfg) => new DAH_serialize_json(cfg),
         ),
         DAH_standards: ifDefined(
             extConfigs.DAH_standards,
-            (cfg) => new DAH_standards(cfg)
+            (cfg) => new DAH_standards(cfg),
         ),
         DAH_validator_suppress: ifDefined(
             extConfigs.DAH_validator_suppress,
-            (cfg) => new DAH_validator_suppress(cfg)
+            (cfg) => new DAH_validator_suppress(cfg),
         ),
     };
 
@@ -260,6 +291,12 @@ export interface Result extends HasMeta<ResultMeta> {
 }
 
 export function processContext(context: Context, data: Data): Map<Id, Result> {
+    ifDefined(context.extensions.DAH_entry_roles, (e) => {
+        e.preprocessEntries(data.entries);
+        e.preprocessIRs(data.impacts);
+        e.preprocessIRs(data.relations);
+    });
+
     const calcEntries = new Map<Id, CalcEntry>();
     for (const [id, entry] of data.entries) {
         calcEntries.set(id, {
@@ -287,11 +324,11 @@ function isNullEntryId(_: Context, id: Id): boolean {
 function solveContainWeights(
     context: Context,
     _: Data,
-    entries: Map<Id, CalcEntry>
+    entries: Map<Id, CalcEntry>,
 ) {
     function flattenSingle(
         entry: CalcEntry,
-        stack: Id[] = []
+        stack: Id[] = [],
     ): Map<Id, Matrix> {
         if (entry.flattenedChildrenMap !== undefined) {
             return entry.flattenedChildrenMap;
@@ -301,7 +338,7 @@ function solveContainWeights(
         if (idx >= 0) {
             // found
             throw new Error(
-                "circular entry containment: " + stack.slice(idx).join(" -> ")
+                "circular entry containment: " + stack.slice(idx).join(" -> "),
             );
         }
 
@@ -315,7 +352,7 @@ function solveContainWeights(
                     flattenSingle(entry, stack);
                 }
                 return entry?.flattenedChildrenMap;
-            }
+            },
         );
 
         stack.pop();
@@ -337,18 +374,9 @@ function flattenContainContribGraph(
     context: Context,
     base: Map<Id, Matrix>,
     idMapCallback: (id: Id) => Map<Id, Matrix> | undefined,
-    throwOnInvalidId = true
+    throwOnInvalidId = true,
 ): Map<Id, Matrix> {
     const solvedMap = new Map<Id, Matrix>();
-    function add(id: Id, weight: Matrix) {
-        weight = weight.copy();
-        const newWeight = solvedMap.get(id);
-        if (newWeight !== undefined) {
-            weight = weight.add(newWeight);
-        }
-        weight.clamp01();
-        solvedMap.set(id, weight);
-    }
 
     for (const [id, weight] of base) {
         const flattenedIdMap = idMapCallback(id);
@@ -359,9 +387,9 @@ function flattenContainContribGraph(
                 throw new Error(`entry not found: ${id}`);
             }
         } else {
-            add(id, weight);
+            mapAddAssign(solvedMap, id, weight);
             for (const [childId, childWeight] of flattenedIdMap) {
-                add(childId, childWeight.mul(weight));
+                mapAddAssign(solvedMap, childId, childWeight.mul(weight));
             }
         }
     }
@@ -372,7 +400,7 @@ function flattenContainContribGraph(
 export function combine(
     context: Context,
     arr: number[],
-    factor: number
+    factor: number,
 ): number {
     return context.combineFunction(arr, factor);
 }
@@ -380,8 +408,8 @@ export function combine(
 export function newZeroVector(context: Context): Vector {
     return new Vector(
         new Array<number>(context.factorScoreCombineWeight.data.length).fill(
-            0.0
-        )
+            0.0,
+        ),
     );
 }
 
@@ -391,7 +419,7 @@ export function combineVectors(context: Context, vectors: Vector[]): Vector {
         score.data[i] = combine(
             context,
             vectors.map((v) => v.data[i]),
-            context.factorScoreCombineWeight.data[i]
+            context.factorScoreCombineWeight.data[i],
         );
     }
     return score;
@@ -401,21 +429,21 @@ function buffWeight(context: Context, weight: Matrix): Matrix {
     if (weight instanceof ScalarMatrix) {
         return new DiagonalMatrix(
             context.factorScoreCombineWeight.data.map((value) =>
-                Math.pow(weight.data, value)
-            )
+                Math.pow(weight.data, value),
+            ),
         );
     } else if (weight instanceof DiagonalMatrix) {
         return new DiagonalMatrix(
             context.factorScoreCombineWeight.data.map((value, i) =>
-                Math.pow(weight.data[i], value)
-            )
+                Math.pow(weight.data[i], value),
+            ),
         );
     } else {
         const n = Math.floor(Math.sqrt(weight.data.length));
         return new RegularMatrix(
             weight.data.map((value, i) =>
-                Math.pow(value, context.factorScoreCombineWeight.data[i % n])
-            )
+                Math.pow(value, context.factorScoreCombineWeight.data[i % n]),
+            ),
         );
     }
 }
@@ -423,14 +451,14 @@ function buffWeight(context: Context, weight: Matrix): Matrix {
 function calcImpactScore(
     context: Context,
     data: Data,
-    entries: Map<Id, CalcEntry>
+    entries: Map<Id, CalcEntry>,
 ) {
     const entryImpactScores = new Map<Id, Vector[]>();
     for (const impact of data.impacts) {
         const flattenedContributors = flattenContainContribGraph(
             context,
             impact.contributors,
-            (id) => entries.get(id)?.flattenedParentMap
+            (id) => entries.get(id)?.flattenedParentMap,
         );
         for (const [id, weight] of flattenedContributors) {
             let scores = entryImpactScores.get(id);
@@ -445,7 +473,7 @@ function calcImpactScore(
     for (const [id, entry] of entries) {
         entry.impactScore = combineVectors(
             context,
-            entryImpactScores.get(id) ?? []
+            entryImpactScores.get(id) ?? [],
         );
     }
 }
@@ -453,13 +481,13 @@ function calcImpactScore(
 function fillRelationReferences(
     context: Context,
     data: Data,
-    entries: Map<Id, CalcEntry>
+    entries: Map<Id, CalcEntry>,
 ) {
     for (const relation of data.relations) {
         const flattenedContributors = flattenContainContribGraph(
             context,
             relation.contributors,
-            (id) => entries.get(id)?.flattenedParentMap
+            (id) => entries.get(id)?.flattenedParentMap,
         );
 
         for (const [id, weight] of flattenedContributors) {
@@ -499,11 +527,11 @@ class ReoccurrenceStack<T> {
 function calcRelationScore(
     context: Context,
     _: Data,
-    entries: Map<Id, CalcEntry>
+    entries: Map<Id, CalcEntry>,
 ) {
     function calcSingle(
         entry: CalcEntry,
-        stack = new ReoccurrenceStack<Id>()
+        stack = new ReoccurrenceStack<Id>(),
     ): Vector {
         const relationScores: Vector[] = [];
         if (stack.push(entry.entry.id)) {
@@ -531,7 +559,7 @@ function calcRelationScore(
 
                 if (relationScore !== undefined) {
                     relationScores.push(
-                        buffWeight(context, weight).mul(relationScore)
+                        buffWeight(context, weight).mul(relationScore),
                     );
                 }
             }
@@ -550,7 +578,7 @@ function calcRelationScore(
 function processResults(
     context: Context,
     data: Data,
-    entries: Map<Id, CalcEntry>
+    entries: Map<Id, CalcEntry>,
 ): Map<Id, Result> {
     const results = new Map<Id, Result>();
     for (const [id, entry] of entries) {
@@ -568,11 +596,11 @@ function processResults(
     }
 
     ifDefined(context.extensions.DAH_overall_score, (ext) =>
-        ext.postProcess(context, results)
+        ext.postProcess(context, results),
     );
 
     ifDefined(context.extensions.DAH_anime_normalize, (ext) =>
-        ext.postProcess(context, results)
+        ext.postProcess(context, results),
     );
 
     ifDefined(context.extensions.DAH_serialize_json, (ext) => {

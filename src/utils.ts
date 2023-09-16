@@ -1,3 +1,4 @@
+import { Matrix } from "./math.ts";
 import { CombineFunction } from "./process.ts";
 
 export function makeCombineSigned(
@@ -31,4 +32,14 @@ export function ifDefined<T, R>(
     }
 
     return callback(obj);
+}
+
+export function mapAddAssign<K>(map: Map<K, Matrix>, id: K, matrix: Matrix) {
+    const currentWeight = map.get(id);
+    if (currentWeight !== undefined) {
+        matrix = matrix.add(currentWeight);
+    }
+
+    matrix.clamp01();
+    map.set(id, matrix);
 }

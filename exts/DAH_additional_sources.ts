@@ -54,16 +54,18 @@ export interface YoutubePlaylistSource extends HasMeta<Meta> {
     playlist: string;
 }
 
-export type YoutubeUserSource =
+export type YoutubeUserSource = (
     | {
           channelId: string;
           channelHandle?: string;
       }
     | {
           channelHandle: string;
-      };
+      }
+) &
+    HasMeta<Meta>;
 
-export type SpotifySource =
+export type SpotifySource = (
     | {
           track: string;
       }
@@ -72,7 +74,9 @@ export type SpotifySource =
       }
     | {
           artist: string;
-      };
+      }
+) &
+    HasMeta<Meta>;
 
 declare module "../mod.ts" {
     interface EntryMeta {
