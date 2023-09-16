@@ -18,6 +18,45 @@ export class DAH_entry_roles {
         return ["DAH_factors"];
     }
 
+    addRole(
+        object: Entry | Impact | Relation,
+        entryId: Id,
+        roles: Iterable<EntryRole>,
+    ) {
+        let roleObject = object.DAH_meta.DAH_entry_roles?.roles;
+        if (roleObject === undefined) {
+            object.DAH_meta.DAH_entry_roles ??= { roles: {} };
+            roleObject = {};
+            object.DAH_meta.DAH_entry_roles.roles ??= roleObject;
+        }
+
+        for (const role of roles) {
+            const atomicRoles = expandToAtomicRoles(role);
+
+            const existingRolesMap = new Map<
+                AtomicRoleType,
+                EntryRole<AtomicRoleType>
+            >();
+            for (const role of roleObject[entryId] ?? []) {
+                existingRolesMap.set(role.roleType, role);
+            }
+
+            for (const role of atomicRoles) {
+                const type = role.roleType;
+                const existingRole = existingRolesMap.get(type);
+                if (existingRole === undefined) {
+                    // this relies on the fact that `expandToAtomicRoles` yields
+                    // distinct-typed `EntryRole<AtomicRoleType>`s
+                    roleObject[entryId].push(role);
+                } else {
+                    existingRole.multiplyFactor += role.multiplyFactor;
+                    existingRole.expressionString +=
+                        "+" + role.expressionString;
+                }
+            }
+        }
+    }
+
     preprocessEntries(entries: Map<Id, Entry>) {
         for (const [id, entry] of entries.entries()) {
             const roles = entry.DAH_meta.DAH_entry_roles;
@@ -179,9 +218,10 @@ function initComposite(
             return partial[type]!.children;
         }
 
-        const expandedChildren = obj[type].children.flatMap((child) =>
-            isAtomicRoleType(child) ? [child] : recursive(child),
+        const expandedChildren = obj[type].children.flatMap(
+            getComposingAtomicRoleTypes,
         );
+
         partial[type] = {
             calcFactor:
                 obj[type].calcFactor ??
@@ -305,41 +345,19 @@ export function parseRoleExpressionString(str: string): EntryRole[] {
     return str.split(":").map(parseRoleComponent);
 }
 
+export function getComposingAtomicRoleTypes(role: RoleType): AtomicRoleType[] {
+    return isAtomicRoleType(role) ? [role] : CompositeRoleTypes[role].children;
+}
+
 export function expandToAtomicRoles(
-    entryRoles: EntryRoles,
-): EntryRoles<AtomicRoleType> {
-    const atomicRoles = {} as Record<Id, EntryRole<AtomicRoleType>[]>;
-    for (const [id, roles] of Object.entries(entryRoles.roles)) {
-        const entryAtomicRoles = new Map<
-            AtomicRoleType,
-            EntryRole<AtomicRoleType>
-        >();
-        for (const role of roles) {
-            const childRoles = isAtomicRoleType(role.roleType)
-                ? [role.roleType]
-                : CompositeRoleTypes[role.roleType].children;
-            for (const atomicRoleType of childRoles) {
-                const mapEntry = entryAtomicRoles.get(atomicRoleType);
-                if (mapEntry === undefined) {
-                    entryAtomicRoles.set(atomicRoleType, {
-                        roleType: atomicRoleType,
-                        factor: new ScalarMatrix(NaN),
-                        multiplyFactor: role.multiplyFactor,
-                        expressionString: role.expressionString,
-                    });
-                } else {
-                    mapEntry.multiplyFactor += role.multiplyFactor;
-                }
-            }
-        }
-
-        atomicRoles[id] = [...entryAtomicRoles.values()];
-    }
-
-    return {
-        ...entryRoles,
-        roles: atomicRoles,
-    };
+    role: EntryRole,
+): EntryRole<AtomicRoleType>[] {
+    return getComposingAtomicRoleTypes(role.roleType).map((roleType) => {
+        return {
+            ...role,
+            roleType,
+        };
+    });
 }
 
 export function calculateFactors(
