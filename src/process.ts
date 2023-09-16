@@ -29,9 +29,21 @@ import {
     ExtConfig_DAH_entry_progress,
 } from "../exts/DAH_entry_progress.ts";
 import {
+    DAH_entry_queue,
+    ExtConfig_DAH_entry_queue,
+} from "../exts/DAH_entry_queue.ts";
+import {
+    DAH_entry_roles,
+    ExtConfig_DAH_entry_roles,
+} from "../exts/DAH_entry_roles.ts";
+import {
     DAH_entry_title,
     ExtConfig_DAH_entry_title,
 } from "../exts/DAH_entry_title.ts";
+import {
+    DAH_entry_type,
+    ExtConfig_DAH_entry_type,
+} from "../exts/DAH_entry_type.ts";
 import { DAH_factors, ExtConfig_DAH_factors } from "../exts/DAH_factors.ts";
 import {
     DAH_ir_source,
@@ -100,7 +112,10 @@ export interface ContextExtensions {
     DAH_combine_pp?: DAH_combine_pp;
     DAH_entry_bestGirl?: DAH_entry_bestGirl;
     DAH_entry_progress?: DAH_entry_progress;
+    DAH_entry_queue?: DAH_entry_queue;
+    DAH_entry_roles?: DAH_entry_roles;
     DAH_entry_title?: DAH_entry_title;
+    DAH_entry_type?: DAH_entry_type;
     DAH_factors?: DAH_factors;
     DAH_ir_source?: DAH_ir_source;
     DAH_overall_score?: DAH_overall_score;
@@ -117,7 +132,10 @@ export interface ContextExtensionConfig {
     DAH_combine_pp?: ExtConfig_DAH_combine_pp;
     DAH_entry_bestGirl?: ExtConfig_DAH_entry_bestGirl;
     DAH_entry_progress?: ExtConfig_DAH_entry_progress;
+    DAH_entry_queue?: ExtConfig_DAH_entry_queue;
+    DAH_entry_roles?: ExtConfig_DAH_entry_roles;
     DAH_entry_title?: ExtConfig_DAH_entry_title;
+    DAH_entry_type?: ExtConfig_DAH_entry_type;
     DAH_factors?: ExtConfig_DAH_factors;
     DAH_ir_source?: ExtConfig_DAH_ir_source;
     DAH_overall_score?: ExtConfig_DAH_overall_score;
@@ -181,9 +199,21 @@ export function newContext(config: ContextConfig): Context {
             extConfigs.DAH_entry_progress,
             (cfg) => new DAH_entry_progress(cfg),
         ),
+        DAH_entry_queue: ifDefined(
+            extConfigs.DAH_entry_queue,
+            (cfg) => new DAH_entry_queue(cfg),
+        ),
+        DAH_entry_roles: ifDefined(
+            extConfigs.DAH_entry_roles,
+            (cfg) => new DAH_entry_roles(cfg),
+        ),
         DAH_entry_title: ifDefined(
             extConfigs.DAH_entry_title,
             (cfg) => new DAH_entry_title(cfg),
+        ),
+        DAH_entry_type: ifDefined(
+            extConfigs.DAH_entry_type,
+            (cfg) => new DAH_entry_type(cfg),
         ),
         DAH_factors: ifDefined(
             extConfigs.DAH_factors,
