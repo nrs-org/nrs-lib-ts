@@ -291,6 +291,12 @@ export interface Result extends HasMeta<ResultMeta> {
 }
 
 export function processContext(context: Context, data: Data): Map<Id, Result> {
+    ifDefined(context.extensions.DAH_entry_roles, (e) => {
+        e.preprocessEntries(data.entries);
+        e.preprocessIRs(data.impacts);
+        e.preprocessIRs(data.relations);
+    });
+
     const calcEntries = new Map<Id, CalcEntry>();
     for (const [id, entry] of data.entries) {
         calcEntries.set(id, {
