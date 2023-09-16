@@ -52,6 +52,10 @@ export class ScalarMatrix {
         ) as T;
     }
 
+    scale(factor: number): ScalarMatrix {
+        return new ScalarMatrix(this.data * factor);
+    }
+
     matvecmul(vector: Vector): Vector {
         return new Vector(vector.data.map((x) => x * this.data));
     }
@@ -103,7 +107,7 @@ export class DiagonalMatrix {
 
         if (matrix instanceof DiagonalMatrix) {
             return new DiagonalMatrix(
-                this.data.map((x, i) => (x += matrix.data[i]))
+                this.data.map((x, i) => (x += matrix.data[i])),
             );
         }
 
@@ -114,6 +118,10 @@ export class DiagonalMatrix {
         return (
             rhs instanceof Vector ? this.matvecmul(rhs) : this.matmul(rhs)
         ) as T;
+    }
+
+    scale(factor: number): DiagonalMatrix {
+        return new DiagonalMatrix(this.data.map((x) => x * factor));
     }
 
     matvecmul(vector: Vector): Vector {
@@ -127,13 +135,13 @@ export class DiagonalMatrix {
 
         if (matrix instanceof DiagonalMatrix) {
             return new DiagonalMatrix(
-                this.data.map((x, i) => x * matrix.data[i])
+                this.data.map((x, i) => x * matrix.data[i]),
             );
         }
 
         const n = this.data.length;
         return new RegularMatrix(
-            matrix.data.map((x, i) => x * this.data[i % n])
+            matrix.data.map((x, i) => x * this.data[i % n]),
         );
     }
 
@@ -174,7 +182,7 @@ export class RegularMatrix {
             return new RegularMatrix(
                 this.data.map((x, i) => {
                     return x + (i % (n + 1) === 0 ? matrix.data : 0);
-                })
+                }),
             );
         }
 
@@ -185,7 +193,7 @@ export class RegularMatrix {
                     return (
                         x + (i % (n + 1) === 0 ? matrix.data[i / (n + 1)] : 0)
                     );
-                })
+                }),
             );
         }
 
@@ -204,6 +212,10 @@ export class RegularMatrix {
         ) as T;
     }
 
+    scale(factor: number): RegularMatrix {
+        return new RegularMatrix(this.data.map((x) => x * factor));
+    }
+
     matvecmul(vector: Vector): Vector {
         const n = this.dimensions();
         return new Vector(
@@ -213,7 +225,7 @@ export class RegularMatrix {
                     sum += this.data[i * n + j] * x;
                 }
                 return sum;
-            })
+            }),
         );
     }
 
@@ -225,7 +237,7 @@ export class RegularMatrix {
         const n = this.dimensions();
         if (matrix instanceof DiagonalMatrix) {
             return new RegularMatrix(
-                this.data.map((x, i) => x * matrix.data[Math.floor(i / n)])
+                this.data.map((x, i) => x * matrix.data[Math.floor(i / n)]),
             );
         }
 
