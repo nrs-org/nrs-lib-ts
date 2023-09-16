@@ -102,7 +102,7 @@ export class DiagonalMatrix {
 
     add(matrix: Matrix): Matrix {
         if (matrix instanceof ScalarMatrix) {
-            return new DiagonalMatrix(this.data.map((x) => (x += matrix.data)));
+            return new DiagonalMatrix(this.data.map((x) => (x + matrix.data)));
         }
 
         if (matrix instanceof DiagonalMatrix) {
