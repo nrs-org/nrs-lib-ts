@@ -12,7 +12,10 @@ import {
 import { AM, AV, AL, factorScores } from "./DAH_factors.ts";
 
 export class DAH_entry_roles {
-    constructor(_: ExtConfig_DAH_entry_roles) {}
+    config: ExtConfig_DAH_entry_roles;
+    constructor(config: ExtConfig_DAH_entry_roles) {
+        this.config = config;
+    }
 
     dependencies(): string[] {
         return ["DAH_factors"];
@@ -21,23 +24,26 @@ export class DAH_entry_roles {
     addRole(
         object: Entry | Impact | Relation,
         entryId: Id,
-        roles: Iterable<EntryRole>,
+        roles: Iterable<EntryRole>
     ) {
-        let roleObject = object.DAH_meta.DAH_entry_roles?.roles;
-        if (roleObject === undefined) {
-            object.DAH_meta.DAH_entry_roles ??= { roles: {} };
-            roleObject = {};
-            object.DAH_meta.DAH_entry_roles.roles ??= roleObject;
+        let entryRoles = object.DAH_meta.DAH_entry_roles;
+        if (entryRoles === undefined) {
+            entryRoles = {
+                roles: {},
+            };
+            object.DAH_meta.DAH_entry_roles = entryRoles;
         }
 
+        const thisEntryRoles = (entryRoles.roles[entryId] ??= []);
+
         for (const role of roles) {
-            const atomicRoles = expandToAtomicRoles(role);
+            const atomicRoles = this.#expandToAtomicRoles(role);
 
             const existingRolesMap = new Map<
                 AtomicRoleType,
                 EntryRole<AtomicRoleType>
             >();
-            for (const role of roleObject[entryId] ?? []) {
+            for (const role of thisEntryRoles) {
                 existingRolesMap.set(role.roleType, role);
             }
 
@@ -47,7 +53,7 @@ export class DAH_entry_roles {
                 if (existingRole === undefined) {
                     // this relies on the fact that `expandToAtomicRoles` yields
                     // distinct-typed `EntryRole<AtomicRoleType>`s
-                    roleObject[entryId].push(role);
+                    thisEntryRoles.push(role);
                 } else {
                     existingRole.multiplyFactor += role.multiplyFactor;
                     existingRole.expressionString +=
@@ -64,7 +70,7 @@ export class DAH_entry_roles {
                 continue;
             }
 
-            const factors = calculateFactors(roles);
+            const factors = this.#calculateFactors(entry, roles);
             for (const [parent, weight] of factors.entries()) {
                 const children = entries.get(parent)?.children;
                 if (children === undefined) {
@@ -83,15 +89,150 @@ export class DAH_entry_roles {
                 continue;
             }
 
-            const factors = calculateFactors(roles);
+            const factors = this.#calculateFactors(ir, roles);
             for (const [id, weight] of factors.entries()) {
                 mapAddAssign(ir.contributors, id, weight);
             }
         }
     }
+
+    #parseRoleComponent(str: string): EntryRole {
+        // e.g. string: image*2*2/3.0
+
+        // split the roletype part
+        const roleTypeLength = indexOfOpChar(str) ?? str.length;
+        const roleType = str.substring(0, roleTypeLength) as RoleType;
+        if (RoleTypes[roleType] === undefined) {
+            throw new Error(`invalid role type: ${roleType}`);
+        }
+
+        let multiplyFactor = 1.0;
+        let i = roleTypeLength;
+        while (i < str.length) {
+            const opChar = str[i];
+            if (opChar !== "*" && opChar !== "/") {
+                throw new Error("invalid operation");
+            }
+
+            const end = indexOfOpChar(str, i + 1) ?? str.length;
+            let factor = parseFloat(str.substring(i + 1, end));
+            if (opChar === "/") {
+                factor = 1.0 / factor;
+            }
+
+            multiplyFactor *= factor;
+            i = end;
+        }
+
+        return {
+            roleType,
+            factor: new ScalarMatrix(NaN),
+            multiplyFactor,
+            expressionString: str,
+        };
+    }
+
+    parseRoleExpressionString(str: string): EntryRole[] {
+        return str.split("+").map(this.#parseRoleComponent);
+    }
+
+    #expandToAtomicRoles(role: EntryRole): EntryRole<AtomicRoleType>[] {
+        return this.getComposingAtomicRoleTypes(role.roleType).map(
+            (roleType) => {
+                return {
+                    ...role,
+                    roleType,
+                };
+            }
+        );
+    }
+
+    #calculateFactors(
+        entry: Entry | Impact | Relation,
+        roles: EntryRoles<AtomicRoleType>
+    ): Map<Id, Matrix> {
+        const atomicRoles = new Set<AtomicRoleType>(
+            Object.values(roles.roles)
+                .flat()
+                .map((role) => role.roleType)
+        );
+
+        const musicVars = {
+            ...defaultMusicVars(
+                atomicRoles,
+                "contributors" in entry ? undefined : entry
+            ),
+            ...this.config.defaultMusicVars,
+            ...roles.musicVars,
+        };
+
+        const cache = new Map<RoleType, Matrix>();
+        const result = new Map<Id, Matrix>();
+
+        const calcRoleFactor = (roleType: RoleType): Matrix => {
+            if (cache.has(roleType)) {
+                return cache.get(roleType)!;
+            }
+
+            const roleCalcFn = this.isAtomicRoleType(roleType)
+                ? AtomicRoleTypes[roleType]
+                : CompositeRoleTypes[roleType].calcFactor;
+
+            const result = roleCalcFn(calcRoleFactor, musicVars);
+            cache.set(roleType, result);
+            return result;
+        };
+
+        for (const [id, entryRoles] of Object.entries(roles.roles)) {
+            let total: Matrix = new ScalarMatrix(0.0);
+
+            for (const role of entryRoles) {
+                role.factor = calcRoleFactor(role.roleType).scale(
+                    role.multiplyFactor
+                );
+                total = total.add(role.factor);
+            }
+
+            result.set(id, total);
+        }
+
+        return result;
+    }
+
+    getComposingAtomicRoleTypes(role: RoleType): AtomicRoleType[] {
+        return getComposingAtomicRoleTypes(role);
+    }
+
+    isAtomicRoleType(role: RoleType): role is AtomicRoleType {
+        return isAtomicRoleType(role);
+    }
 }
 
-export type ExtConfig_DAH_entry_roles = Record<string | number | symbol, never>;
+export type AtomicRoleType =
+    | "total"
+    | "compose"
+    | "arrange"
+    | "image"
+    | "image_feat"
+    | "vocal"
+    | "lyrics"
+    | "inst_perform"
+    | "mv"
+    | "albumart";
+export type CompositeRoleType =
+    | "music_total"
+    | "image_total"
+    | "prod"
+    | "perform"
+    | "vocal_lyrics"
+    | "inst"
+    | "inst_total";
+
+export type RoleType = AtomicRoleType | CompositeRoleType;
+
+export type ExtConfig_DAH_entry_roles = {
+    defaultMusicVars?: MusicVars;
+};
 export type EntryRoles<T = RoleType> = {
     roles: Record<Id, EntryRole<T>[]>;
     musicVars?: MusicVars;
@@ -105,7 +246,7 @@ export type EntryRole<T = RoleType> = {
 };
 
 export interface MusicVars {
-    // how much vocal-lyrics compared to instrumental
+    // how much vocal_lyrics compared to instrumental
     // e.g. some pop idol song: 0.5 (default)
     //      weird ass electronic song with like 3 lines from nayuta: 0.1-0.3 idk
     vocallyrics?: number;
@@ -130,52 +271,47 @@ export interface MusicVars {
     feat?: boolean;
 }
 
-export function defaultMusicVars(
+function isAtomicRoleType(role: RoleType): role is AtomicRoleType {
+    return AtomicRoleTypes[role as AtomicRoleType] !== undefined;
+}
+
+function getComposingAtomicRoleTypes(role: RoleType): AtomicRoleType[] {
+    return isAtomicRoleType(role) ? [role] : CompositeRoleTypes[role].children;
+}
+
+function defaultMusicVars(
     roles: Set<AtomicRoleType>,
+    entry?: Entry
 ): Required<MusicVars> {
+    const title = entry?.DAH_meta.DAH_entry_title ?? "";
+    const titleHasFeat = title.includes("feat.") || title.includes("ft.");
     return {
         vocallyrics: 0.5,
         lyricsmusic: 0.1,
         emolyrics: 0.2,
         arrange: 0.5,
-        feat: roles.has("image-feat"),
+        feat: roles.has("image_feat") || titleHasFeat,
     };
 }
 
-type AtomicRoleType =
-    | "total"
-    | "compose"
-    | "arrange"
-    | "image"
-    | "image-feat"
-    | "vocal"
-    | "lyrics"
-    | "inst-perform"
-    | "mv"
-    | "albumart";
-type CompositeRoleType =
-    | "music-total"
-    | "image-total"
-    | "prod"
-    | "perform"
-    | "vocal-lyrics"
-    | "inst"
-    | "inst-total";
-type RoleType = AtomicRoleType | CompositeRoleType;
 type CalcFactorHelperFn = (role: RoleType) => Matrix;
 type CalcFactorFn = (
     factor: CalcFactorHelperFn,
-    vars: Required<MusicVars>,
+    vars: Required<MusicVars>
 ) => Matrix;
 
 function AMMatrix(factor: number): DiagonalMatrix {
-    const matrix = new DiagonalMatrix(new Array<number>(factorScores.length));
+    const matrix = new DiagonalMatrix(
+        new Array<number>(factorScores.length).fill(0)
+    );
     matrix.data[AM.factorIndex] = factor;
     return matrix;
 }
 
 function ALMatrix(factor: number): DiagonalMatrix {
-    const matrix = new DiagonalMatrix(new Array<number>(factorScores.length));
+    const matrix = new DiagonalMatrix(
+        new Array<number>(factorScores.length).fill(0)
+    );
     matrix.data[AL.factorIndex] = factor;
     return matrix;
 }
@@ -192,13 +328,9 @@ interface CompositeRoleTypeObjectInit {
 
 type AtomicRoleTypeObject = CalcFactorFn;
 
-function isAtomicRoleType(role: RoleType): role is AtomicRoleType {
-    return AtomicRoleTypes[role as AtomicRoleType] !== undefined;
-}
-
 function composite(
     children: RoleType[],
-    calcFactor?: CalcFactorFn,
+    calcFactor?: CalcFactorFn
 ): CompositeRoleTypeObjectInit {
     return {
         children,
@@ -207,32 +339,43 @@ function composite(
 }
 
 function initComposite(
-    obj: Record<CompositeRoleType, CompositeRoleTypeObjectInit>,
+    obj: Record<CompositeRoleType, CompositeRoleTypeObjectInit>
 ): Record<CompositeRoleType, CompositeRoleTypeObject> {
     const partial = {} as Partial<
         Record<CompositeRoleType, CompositeRoleTypeObject>
     >;
 
-    function recursive(type: CompositeRoleType): AtomicRoleType[] {
+    const recursive = (type: CompositeRoleType): AtomicRoleType[] => {
         if (partial[type] !== undefined) {
             return partial[type]!.children;
         }
 
-        const expandedChildren = obj[type].children.flatMap(
-            getComposingAtomicRoleTypes,
-        );
+        const expandedChildren = obj[type].children.flatMap((role) => {
+            if (isAtomicRoleType(role)) {
+                return [role];
+            }
+
+            const obj = partial[role];
+            if (obj !== undefined) {
+                return obj.children;
+            }
+
+            return recursive(role);
+        });
+
+        const calcFactor =
+            obj[type].calcFactor ??
+            ((factor) =>
+                expandedChildren
+                    .map(factor)
+                    .reduce((a, b) => a.add(b), new ScalarMatrix(0.0)));
 
         partial[type] = {
-            calcFactor:
-                obj[type].calcFactor ??
-                ((factor) =>
-                    expandedChildren
-                        .map(factor)
-                        .reduce((a, b) => a.add(b), new ScalarMatrix(0.0))),
+            calcFactor,
             children: expandedChildren,
         };
         return expandedChildren;
-    }
+    };
 
     for (const key in obj) {
         recursive(key as CompositeRoleType);
@@ -241,21 +384,22 @@ function initComposite(
     return partial as Required<typeof partial>;
 }
 
-export const AtomicRoleTypes: Record<AtomicRoleType, AtomicRoleTypeObject> = {
+const AtomicRoleTypes: Record<AtomicRoleType, AtomicRoleTypeObject> = {
     total: () => identityMatrix,
     arrange: (factor, vars) =>
-        factor("inst-total").scale((vars.arrange * 2) / 3),
-    compose: (factor) => factor("inst-total").add(factor("compose").scale(-1)),
-    "inst-perform": (factor) => factor("inst-total").scale(1 / 3),
-    image: (factor, vars) => factor("image-total").scale(vars.feat ? 0.7 : 1.0),
-    "image-feat": (factor) =>
-        factor("image-total").add(factor("image").scale(-1)),
-    vocal: (factor) => factor("vocal-lyrics").add(factor("lyrics").scale(-1)),
+        factor("inst_total").scale((vars.arrange * 2) / 3),
+    compose: (factor) => factor("inst_total").add(factor("arrange").scale(-1)),
+    inst_perform: (factor) => factor("inst_total").scale(1 / 3),
+    image: (factor, vars) => factor("image_total").scale(vars.feat ? 0.7 : 1.0),
+    image_feat: (factor) =>
+        factor("image_total").add(factor("image").scale(-1)),
+    vocal: (factor) => factor("vocal_lyrics").add(factor("lyrics").scale(-1)),
     lyrics: (factor, vars) =>
-        factor("vocal-lyrics").mul(
+        factor("vocal_lyrics").mul(
             identityMatrix
                 .scale(vars.emolyrics)
-                .add(AMMatrix(vars.lyricsmusic - vars.emolyrics)), // set AM to vars.lyricsmusic
+                .add(ALMatrix(1.0 - vars.emolyrics)) // set AL to 1.0
+                .add(AMMatrix(vars.lyricsmusic - vars.emolyrics)) // set AM to vars.lyricsmusic
         ),
     mv: () => DiagonalMatrix.fromFactors([[AV, 1.0]]),
     albumart: () => DiagonalMatrix.fromFactors([[AV, 1.0]]),
@@ -264,33 +408,33 @@ export const AtomicRoleTypes: Record<AtomicRoleType, AtomicRoleTypeObject> = {
 // inst: C8/3A8/3IP8/3I2:
 // vocal: C4/3A4/3IP4/3V4I2:L10
 
-export const CompositeRoleTypes = initComposite({
-    "music-total": composite(["prod", "perform", "image-total"], (factor) =>
-        factor("total"),
+const CompositeRoleTypes = initComposite({
+    music_total: composite(["prod", "perform", "image_total"], (factor) =>
+        factor("total")
     ),
-    "image-total": composite(["image", "image-feat"], (factor) =>
-        factor("music-total").scale(0.2),
+    image_total: composite(["image", "image_feat"], (factor) =>
+        factor("music_total").scale(0.2)
     ),
-    "vocal-lyrics": composite(["vocal", "lyrics"], (factor, vars) =>
-        factor("music-total")
-            .add(factor("image-total").scale(-1))
+    vocal_lyrics: composite(["vocal", "lyrics"], (factor, vars) =>
+        factor("music_total")
+            .add(factor("image_total").scale(-1))
             .mul(
                 new ScalarMatrix(vars.vocallyrics).add(
-                    ALMatrix(1.0 - vars.vocallyrics),
-                ),
-            ),
+                    ALMatrix(1.0 - vars.vocallyrics)
+                )
+            )
     ),
-    "inst-total": composite(["inst", "inst-perform"], (factor) =>
-        factor("music-total")
-            .add(factor("image-total").scale(-1))
-            .add(factor("vocal-lyrics").scale(-1)),
+    inst_total: composite(["inst", "inst_perform"], (factor) =>
+        factor("music_total")
+            .add(factor("image_total").scale(-1))
+            .add(factor("vocal_lyrics").scale(-1))
     ),
     inst: composite(["compose", "arrange"]),
-    perform: composite(["inst-perform", "vocal"]),
+    perform: composite(["inst_perform", "vocal"]),
     prod: composite(["inst", "lyrics"]),
 });
 
-export const RoleTypes = {
+const RoleTypes = {
     ...AtomicRoleTypes,
     ...CompositeRoleTypes,
 } as const;
@@ -303,105 +447,6 @@ function indexOfOpChar(str: string, pos = 0): number | undefined {
     }
 
     return undefined;
-}
-
-function parseRoleComponent(str: string): EntryRole {
-    // e.g. string: image*2*2/3.0
-
-    // split the roletype part
-    const roleTypeLength = indexOfOpChar(str) ?? str.length;
-    const roleType = str.substring(roleTypeLength) as RoleType;
-    if (RoleTypes[roleType] !== undefined) {
-        throw new Error("invalid role type");
-    }
-
-    let multiplyFactor = 1.0;
-    let i = roleTypeLength;
-    while (i < str.length) {
-        const opChar = str[i];
-        if (opChar !== "*" && opChar !== "/") {
-            throw new Error("invalid operation");
-        }
-
-        const end = indexOfOpChar(str, i) ?? str.length;
-        let factor = parseFloat(str.substring(i + 1, end));
-        if (opChar === "/") {
-            factor = 1.0 / factor;
-        }
-
-        multiplyFactor *= factor;
-        i = end;
-    }
-
-    return {
-        roleType,
-        factor: new ScalarMatrix(NaN),
-        multiplyFactor,
-        expressionString: str,
-    };
-}
-
-export function parseRoleExpressionString(str: string): EntryRole[] {
-    return str.split(":").map(parseRoleComponent);
-}
-
-export function getComposingAtomicRoleTypes(role: RoleType): AtomicRoleType[] {
-    return isAtomicRoleType(role) ? [role] : CompositeRoleTypes[role].children;
-}
-
-export function expandToAtomicRoles(
-    role: EntryRole,
-): EntryRole<AtomicRoleType>[] {
-    return getComposingAtomicRoleTypes(role.roleType).map((roleType) => {
-        return {
-            ...role,
-            roleType,
-        };
-    });
-}
-
-export function calculateFactors(
-    roles: EntryRoles<AtomicRoleType>,
-): Map<Id, Matrix> {
-    const atomicRoles = new Set<AtomicRoleType>(
-        Object.values(roles.roles)
-            .flat()
-            .map((role) => role.roleType),
-    );
-
-    const musicVars = {
-        ...defaultMusicVars(atomicRoles),
-        ...roles.musicVars,
-    };
-
-    const cache = new Map<RoleType, Matrix>();
-    const result = new Map<Id, Matrix>();
-
-    function calcRoleFactor(roleType: RoleType): Matrix {
-        if (cache.has(roleType)) {
-            return cache.get(roleType)!;
-        }
-
-        const roleCalcFn = isAtomicRoleType(roleType)
-            ? AtomicRoleTypes[roleType]
-            : CompositeRoleTypes[roleType].calcFactor;
-
-        return roleCalcFn(calcRoleFactor, musicVars);
-    }
-
-    for (const [id, entryRoles] of Object.entries(roles.roles)) {
-        let total: Matrix = new ScalarMatrix(0.0);
-
-        for (const role of entryRoles) {
-            role.factor = calcRoleFactor(role.roleType);
-            const factor = role.factor.scale(role.multiplyFactor);
-            total = total.add(factor);
-        }
-
-        result.set(id, total);
-    }
-
-    return result;
 }
 
 declare module "../mod.ts" {
