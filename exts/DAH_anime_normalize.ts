@@ -7,7 +7,7 @@ import {
     Result,
 } from "../mod.ts";
 
-import * as bulk from "./DAH_anime_normalize_bulk.json" assert { type: "json" };
+import * as bulk from "./DAH_anime_normalize_bulk.json" with { type: "json" };
 import { deserializeBulk } from "./DAH_serialize_json.ts";
 
 export class DAH_anime_normalize {
