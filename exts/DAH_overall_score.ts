@@ -1,5 +1,6 @@
-import { Id, Vector, combine, Result, Context } from "../mod.ts";
-import { Additional, Art, Boredom, Emotion } from "./DAH_factors.ts";
+import { combinePow } from "../mod.ts";
+import { Context, Id, Result, Vector } from "../mod.ts";
+import { Additional, Art, Boredom, Emotion, Subscore } from "./DAH_factors.ts";
 
 export class DAH_overall_score {
     constructor(_: ExtConfig_DAH_overall_score) {}
@@ -8,16 +9,13 @@ export class DAH_overall_score {
         return ["DAH_factors"];
     }
 
-    #calcOverallScore(context: Context, vector: Vector): number {
+    #calcOverallScore(_context: Context, vector: Vector): number {
         return [Emotion, Art, Boredom, Additional]
             .map((subscore) =>
-                combine(
-                    context,
-                    subscore.factors.map(
-                        (factor) => vector.data[factor.factorIndex],
-                    ),
+                combinePow(
+                    subscore.factors.map((f) => vector.data[f.factorIndex]),
                     subscore.subscoreWeight,
-                ),
+                )
             )
             .reduce((a, b) => a + b);
     }

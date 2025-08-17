@@ -1,22 +1,22 @@
 import {
-    Id,
-    Entry,
     Data,
-    Impact,
-    Relation,
-    HasMeta,
-    RelationMeta,
+    DiagonalMatrix,
+    Entry,
     EntryMeta,
+    HasMeta,
+    Id,
+    Impact,
     ImpactMeta,
     Matrix,
-    Vector,
-    Result,
-    ScalarMatrix,
-    DiagonalMatrix,
     RegularMatrix,
+    Relation,
+    RelationMeta,
+    Result,
     ResultMeta,
+    ScalarMatrix,
+    Vector,
 } from "../mod.ts";
-import { FactorScoreShortName, factorScores } from "./DAH_factors.ts";
+import { factorScores, FactorScoreShortName } from "./DAH_factors.ts";
 
 type FactorScoreNamePair = `${FactorScoreShortName},${FactorScoreShortName}`;
 type SamePair<T> = T extends infer F extends string ? `${F},${F}` : never;
@@ -48,10 +48,11 @@ export function toJSONMatrix(m: Matrix): JSONMatrix {
     } else {
         for (let i = 0; i < n; ++i) {
             for (let j = 0; j < n; ++j) {
-                const key =
-                    i == j
-                        ? factorScores[i].shortName
-                        : `${factorScores[i].shortName},${factorScores[j].shortName}`;
+                const key = i == j
+                    ? factorScores[i].shortName
+                    : `${factorScores[i].shortName},${
+                        factorScores[j].shortName
+                    }`;
                 const value = m.data[i * n + j];
                 if (Math.abs(value) >= 1e-4) {
                     matrix[key as keyof JSONMatrixObject] = value;
@@ -82,8 +83,9 @@ export function fromJSONMatrix(matrix: JSONMatrix): Matrix {
                 continue;
             }
 
-            const key =
-                `${factorScores[i].shortName},${factorScores[j].shortName}` as keyof JSONMatrixObject;
+            const key = `${factorScores[i].shortName},${
+                factorScores[j].shortName
+            }` as keyof JSONMatrixObject;
             const value = matrix[key] ?? 0.0;
 
             if (Math.abs(value) < 1e-4) {
@@ -118,7 +120,6 @@ export function fromJSONVector(jsonVector: JSONVector): Vector {
 
 export interface JSONEntry extends HasMeta<EntryMeta> {
     id: Id;
-    children: Record<Id, JSONMatrix>;
 }
 
 export interface JSONImpact extends HasMeta<ImpactMeta> {
@@ -132,8 +133,8 @@ export interface JSONRelation extends HasMeta<RelationMeta> {
 }
 
 export interface JSONResult extends HasMeta<ResultMeta> {
-    totalImpact: JSONVector;
-    totalRelation: JSONVector;
+    positiveScore: JSONVector;
+    negativeScore: JSONVector;
     overallVector: JSONVector;
 }
 
@@ -151,7 +152,6 @@ function mapValues<K, V1, V2>(
 function toJSONEntry(entry: Entry): JSONEntry {
     return {
         id: entry.id,
-        children: Object.fromEntries(mapValues(entry.children, toJSONMatrix)),
         DAH_meta: entry.DAH_meta,
     };
 }
@@ -181,10 +181,6 @@ function toJSONRelation(relation: Relation): JSONRelation {
 function fromJSONEntry(entry: JSONEntry): Entry {
     return {
         id: entry.id,
-        children: mapValues(
-            new Map(Object.entries(entry.children)),
-            fromJSONMatrix,
-        ),
         DAH_meta: entry.DAH_meta,
     };
 }
@@ -216,8 +212,8 @@ function fromJSONRelation(relation: JSONRelation): Relation {
 
 function fromJSONResult(result: JSONResult): Result {
     return {
-        totalImpact: fromJSONVector(result.totalImpact),
-        totalRelation: fromJSONVector(result.totalRelation),
+        positiveScore: fromJSONVector(result.positiveScore),
+        negativeScore: fromJSONVector(result.negativeScore),
         overallVector: fromJSONVector(result.overallVector),
         DAH_meta: result.DAH_meta,
     };
@@ -257,14 +253,17 @@ export class DAH_serialize_json {
             }
             return entries;
         });
-        await this.#serialize(this.config.impacts, () =>
-            data.impacts.map(toJSONImpact),
+        await this.#serialize(
+            this.config.impacts,
+            () => data.impacts.map(toJSONImpact),
         );
-        await this.#serialize(this.config.relations, () =>
-            data.relations.map(toJSONRelation),
+        await this.#serialize(
+            this.config.relations,
+            () => data.relations.map(toJSONRelation),
         );
-        await this.#serialize(this.config.scores, () =>
-            Object.fromEntries(result),
+        await this.#serialize(
+            this.config.scores,
+            () => Object.fromEntries(result),
         );
         await this.#serialize(this.config.bulk, () => {
             const entries: Record<Id, JSONEntry> = {};
