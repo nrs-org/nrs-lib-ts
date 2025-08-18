@@ -267,11 +267,18 @@ function embed(
     context: Context,
     vector: Vector,
 ): Vector {
-    return new Vector(
+    const v = new Vector(
         vector.data.map((v, i) =>
             Math.pow(v, 1 / context.factorScoreCombineWeight.data[i])
         ),
     );
+
+    // check if v has NaN or not
+    assert(
+        v.data.filter((n) => n !== n).length === 0,
+        "Embedded vector contains NaN values",
+    );
+    return v;
 }
 
 function unembed(
@@ -309,7 +316,7 @@ function constScoreCalc(
     for (let i = 0; i < data.impacts.length; i++) {
         const impact = data.impacts[i];
         for (const [entry, weight] of impact.contributors) {
-            impactScores.get(entry)!.add(
+            impactScores.get(entry)?.add(
                 weight.mul(impactEmbeddedScores[i]),
             );
         }
@@ -351,7 +358,7 @@ function topoSortEntries(
 
     const sccGraph = new Graph({ directed: true });
     for (let i = 0; i < sccs.length; i++) {
-        entryGraph.setNode(i.toString());
+        sccGraph.setNode(i.toString());
     }
 
     for (const entry of data.entries.keys()) {
@@ -468,20 +475,28 @@ export function processContext(context: Context, data: Data): Map<Id, Result> {
             }
         }
 
-        const equationRhs = new Array<[number, number]>(N * entryScc.length);
+        const equationRhs = [
+            new Array<number>(N * entryScc.length),
+            new Array<number>(N * entryScc.length),
+        ];
         for (let i = 0; i < entryScc.length; ++i) {
             const entryId = entryScc[i];
             const positiveConst = positiveConstScores.get(entryId)!;
             const negativeConst = negativeConstScores.get(entryId)!;
             for (let j = 0; j < N; ++j) {
-                equationRhs[i * N + j] = [
-                    positiveConst.data[j],
-                    negativeConst.data[j],
-                ];
+                equationRhs[0][i * N + j] = positiveConst.data[j];
+                equationRhs[1][i * N + j] = negativeConst.data[j];
             }
         }
-        const equationRhsMatrix = mathjsMatrix(equationRhs);
-        const overallScores = lusolve(equationMatrix, equationRhsMatrix);
+
+        const positiveScores = lusolve(
+            equationMatrix,
+            mathjsMatrix(equationRhs[0]),
+        );
+        const negativeScores = lusolve(
+            equationMatrix,
+            mathjsMatrix(equationRhs[1]),
+        );
 
         for (let i = 0; i < entryScc.length; ++i) {
             const result = {
@@ -491,16 +506,20 @@ export function processContext(context: Context, data: Data): Map<Id, Result> {
                 DAH_meta: {},
             };
             for (let j = 0; j < N; ++j) {
-                result.positiveScore.data[j] = overallScores.get([
+                result.positiveScore.data[j] = positiveScores.get([
                     i * N + j,
                     0,
                 ])!;
-                result.negativeScore.data[j] = overallScores.get([
+                result.negativeScore.data[j] = negativeScores.get([
                     i * N + j,
-                    1,
+                    0,
                 ])!;
             }
 
+            embeddedTotalScores.set(
+                entryScc[i],
+                [result.positiveScore, result.negativeScore],
+            );
             result.positiveScore = unembed(context, result.positiveScore);
             result.negativeScore = unembed(context, result.negativeScore);
             result.overallVector.add(result.positiveScore);
