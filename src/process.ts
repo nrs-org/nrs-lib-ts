@@ -13,14 +13,6 @@ import {
     ExtConfig_DAH_anime_normalize,
 } from "../exts/DAH_anime_normalize.ts";
 import {
-    DAH_combine_pow,
-    ExtConfig_DAH_combine_pow,
-} from "../exts/DAH_combine_pow.ts";
-import {
-    DAH_combine_pp,
-    ExtConfig_DAH_combine_pp,
-} from "../exts/DAH_combine_pp.ts";
-import {
     DAH_entry_bestGirl,
     ExtConfig_DAH_entry_bestGirl,
 } from "../exts/DAH_entry_bestGirl.ts";
@@ -73,7 +65,19 @@ import {
     Vector,
 } from "./math.ts";
 import { ifDefined } from "./utils.ts";
-import { mapAddAssign } from "../mod.ts";
+import {
+    alg,
+    Graph,
+    identity as identityMathJs,
+    lusolve,
+    Matrix as MathJsMatrix,
+    matrix as mathjsMatrix,
+} from "../deps.ts";
+import { assert } from "../mod.ts";
+import {
+    DAH_entry_contains,
+    ExtConfig_DAH_entry_contains,
+} from "../exts/DAH_entry_contains.ts";
 
 export class ContextAPI {
     newVector(data: number[]): Vector {
@@ -92,25 +96,20 @@ export class ContextAPI {
 
 export interface Context {
     extensions: ContextExtensions;
-    combineFunction: CombineFunction;
     factorScoreCombineWeight: Vector;
     api: ContextAPI;
 }
 
-export type CombineFunction = (arr: number[], factor: number) => number;
-
 export interface ContextConfig {
     extensions: ContextExtensionConfig;
-    combineFunction?: CombineFunction;
     factorScoreCombineWeight?: Vector;
 }
 
 export interface ContextExtensions {
     DAH_additional_sources?: DAH_additional_sources;
     DAH_anime_normalize?: DAH_anime_normalize;
-    DAH_combine_pow?: DAH_combine_pow;
-    DAH_combine_pp?: DAH_combine_pp;
     DAH_entry_bestGirl?: DAH_entry_bestGirl;
+    DAH_entry_contains?: DAH_entry_contains;
     DAH_entry_progress?: DAH_entry_progress;
     DAH_entry_queue?: DAH_entry_queue;
     DAH_entry_roles?: DAH_entry_roles;
@@ -128,9 +127,8 @@ export interface ContextExtensions {
 export interface ContextExtensionConfig {
     DAH_additional_sources?: ExtConfig_DAH_additional_sources;
     DAH_anime_normalize?: ExtConfig_DAH_anime_normalize;
-    DAH_combine_pow?: ExtConfig_DAH_combine_pow;
-    DAH_combine_pp?: ExtConfig_DAH_combine_pp;
     DAH_entry_bestGirl?: ExtConfig_DAH_entry_bestGirl;
+    DAH_entry_contains?: ExtConfig_DAH_entry_contains;
     DAH_entry_progress?: ExtConfig_DAH_entry_progress;
     DAH_entry_queue?: ExtConfig_DAH_entry_queue;
     DAH_entry_roles?: ExtConfig_DAH_entry_roles;
@@ -160,16 +158,17 @@ function checkExtensionDependencies(extensions: ContextExtensions) {
             );
         if (missing.length > 0) {
             throw new Error(
-                `Extension ${name} has missing dependencies: ${missing.join(
-                    ", ",
-                )}`,
+                `Extension ${name} has missing dependencies: ${
+                    missing.join(
+                        ", ",
+                    )
+                }`,
             );
         }
     }
 }
 
 export function newContext(config: ContextConfig): Context {
-    let combineFunction = config.combineFunction;
     let factorScoreCombineWeight = config.factorScoreCombineWeight;
 
     const extConfigs = config.extensions;
@@ -183,17 +182,13 @@ export function newContext(config: ContextConfig): Context {
             extConfigs.DAH_anime_normalize,
             (cfg) => new DAH_anime_normalize(cfg),
         ),
-        DAH_combine_pow: ifDefined(
-            extConfigs.DAH_combine_pow,
-            (cfg) => new DAH_combine_pow(cfg),
-        ),
-        DAH_combine_pp: ifDefined(
-            extConfigs.DAH_combine_pp,
-            (cfg) => new DAH_combine_pp(cfg),
-        ),
         DAH_entry_bestGirl: ifDefined(
             extConfigs.DAH_entry_bestGirl,
             (cfg) => new DAH_entry_bestGirl(cfg),
+        ),
+        DAH_entry_contains: ifDefined(
+            extConfigs.DAH_entry_contains,
+            (cfg) => new DAH_entry_contains(cfg),
         ),
         DAH_entry_progress: ifDefined(
             extConfigs.DAH_entry_progress,
@@ -245,21 +240,9 @@ export function newContext(config: ContextConfig): Context {
         ),
     };
 
-    ifDefined(extensions.DAH_combine_pow, (ext) => {
-        combineFunction = ext.makeCombineFunction();
-    });
-
-    ifDefined(extensions.DAH_combine_pp, (ext) => {
-        combineFunction = ext.makeCombineFunction();
-    });
-
     ifDefined(extensions.DAH_factors, (ext) => {
         factorScoreCombineWeight = ext.getFactorCombineWeightVector();
     });
-
-    if (!combineFunction) {
-        throw new Error("combine function not specified");
-    }
 
     if (!factorScoreCombineWeight) {
         throw new Error("factor score combine weight not specified");
@@ -269,343 +252,309 @@ export function newContext(config: ContextConfig): Context {
 
     return {
         extensions,
-        combineFunction,
         factorScoreCombineWeight,
         api: new ContextAPI(),
     };
 }
 
-interface CalcEntry {
-    entry: Entry;
-    flattenedChildrenMap: Map<Id, Matrix> | undefined;
-    flattenedParentMap: Map<Id, Matrix>;
-    relations: [Relation, Matrix][];
-    impactScore: Vector | undefined;
-    relationScore: Vector | undefined;
-}
-
 export interface Result extends HasMeta<ResultMeta> {
-    totalImpact: Vector;
-    totalRelation: Vector;
+    positiveScore: Vector;
+    negativeScore: Vector;
     overallVector: Vector;
 }
 
-export function processContext(context: Context, data: Data): Map<Id, Result> {
-    ifDefined(context.extensions.DAH_entry_roles, (e) => {
-        e.preprocessEntries(data.entries);
-        e.preprocessIRs(data.impacts);
-        e.preprocessIRs(data.relations);
-    });
-
-    const calcEntries = new Map<Id, CalcEntry>();
-    for (const [id, entry] of data.entries) {
-        calcEntries.set(id, {
-            entry: entry,
-            flattenedChildrenMap: undefined,
-            flattenedParentMap: new Map<Id, Matrix>(),
-            relations: [],
-            impactScore: undefined,
-            relationScore: undefined,
-        });
-    }
-
-    solveContainWeights(context, data, calcEntries);
-    calcImpactScore(context, data, calcEntries);
-    fillRelationReferences(context, data, calcEntries);
-    calcRelationScore(context, data, calcEntries);
-    return processResults(context, data, calcEntries);
-}
-
-function isNullEntryId(_: Context, id: Id): boolean {
-    // TODO: make this extension-specific
-    return id.includes("[null entry]");
-}
-
-function solveContainWeights(
+function embed(
     context: Context,
-    _: Data,
-    entries: Map<Id, CalcEntry>,
-) {
-    function flattenSingle(
-        entry: CalcEntry,
-        stack: Id[] = [],
-    ): Map<Id, Matrix> {
-        if (entry.flattenedChildrenMap !== undefined) {
-            return entry.flattenedChildrenMap;
-        }
+    vector: Vector,
+): Vector {
+    const v = new Vector(
+        vector.data.map((v, i) =>
+            Math.pow(v, 1 / context.factorScoreCombineWeight.data[i])
+        ),
+    );
 
-        const idx = stack.indexOf(entry.entry.id);
-        if (idx >= 0) {
-            // found
-            throw new Error(
-                "circular entry containment: " + stack.slice(idx).join(" -> "),
-            );
-        }
-
-        stack.push(entry.entry.id);
-        entry.flattenedChildrenMap = flattenContainContribGraph(
-            context,
-            entry.entry.children,
-            (id) => {
-                const entry = entries.get(id);
-                if (entry !== undefined) {
-                    flattenSingle(entry, stack);
-                }
-                return entry?.flattenedChildrenMap;
-            },
-        );
-
-        stack.pop();
-
-        for (const [id, weight] of entry.flattenedChildrenMap) {
-            entries.get(id)!.flattenedParentMap.set(entry.entry.id, weight);
-        }
-
-        return entry.flattenedChildrenMap;
-    }
-
-    for (const [_, entry] of entries) {
-        flattenSingle(entry);
-    }
+    // check if v has NaN or not
+    assert(
+        v.data.filter((n) => n !== n).length === 0,
+        "Embedded vector contains NaN values",
+    );
+    return v;
 }
 
-// common algorithm used in flattening contain/contributing graphs
-function flattenContainContribGraph(
+function unembed(
     context: Context,
-    base: Map<Id, Matrix>,
-    idMapCallback: (id: Id) => Map<Id, Matrix> | undefined,
-    throwOnInvalidId = true,
-): Map<Id, Matrix> {
-    const solvedMap = new Map<Id, Matrix>();
-
-    for (const [id, weight] of base) {
-        const flattenedIdMap = idMapCallback(id);
-        if (flattenedIdMap === undefined) {
-            if (isNullEntryId(context, id)) {
-                continue;
-            } else if (throwOnInvalidId) {
-                throw new Error(`entry not found: ${id}`);
-            }
-        } else {
-            mapAddAssign(solvedMap, id, weight);
-            for (const [childId, childWeight] of flattenedIdMap) {
-                mapAddAssign(solvedMap, childId, childWeight.mul(weight));
-            }
-        }
-    }
-
-    return solvedMap;
-}
-
-export function combine(
-    context: Context,
-    arr: number[],
-    factor: number,
-): number {
-    return context.combineFunction(arr, factor);
-}
-
-export function newZeroVector(context: Context): Vector {
+    vector: Vector,
+): Vector {
     return new Vector(
-        new Array<number>(context.factorScoreCombineWeight.data.length).fill(
-            0.0,
+        vector.data.map((v, i) =>
+            Math.pow(v, context.factorScoreCombineWeight.data[i])
         ),
     );
 }
 
-export function combineVectors(context: Context, vectors: Vector[]): Vector {
-    const score = newZeroVector(context);
-    for (let i = 0; i < score.data.length; i++) {
-        score.data[i] = combine(
-            context,
-            vectors.map((v) => v.data[i]),
-            context.factorScoreCombineWeight.data[i],
-        );
-    }
-    return score;
-}
-
-function buffWeight(context: Context, weight: Matrix): Matrix {
-    if (weight instanceof ScalarMatrix) {
-        return new DiagonalMatrix(
-            context.factorScoreCombineWeight.data.map((value) =>
-                Math.pow(weight.data, value),
-            ),
-        );
-    } else if (weight instanceof DiagonalMatrix) {
-        return new DiagonalMatrix(
-            context.factorScoreCombineWeight.data.map((value, i) =>
-                Math.pow(weight.data[i], value),
-            ),
-        );
-    } else {
-        const n = Math.floor(Math.sqrt(weight.data.length));
-        return new RegularMatrix(
-            weight.data.map((value, i) =>
-                Math.pow(value, context.factorScoreCombineWeight.data[i % n]),
-            ),
-        );
-    }
-}
-
-function calcImpactScore(
+function constScoreCalc(
     context: Context,
     data: Data,
-    entries: Map<Id, CalcEntry>,
-) {
-    const entryImpactScores = new Map<Id, Vector[]>();
-    for (const impact of data.impacts) {
-        const flattenedContributors = flattenContainContribGraph(
+    sign: number,
+): Map<Id, Vector> {
+    const signedRelu = (vector: Vector) => {
+        return new Vector(vector.data.map((v) => Math.max(0, sign * v)));
+    };
+    const impactEmbeddedScores = [];
+    for (let i = 0; i < data.impacts.length; i++) {
+        impactEmbeddedScores[i] = embed(
             context,
-            impact.contributors,
-            (id) => entries.get(id)?.flattenedParentMap,
+            signedRelu(data.impacts[i].score),
         );
-        for (const [id, weight] of flattenedContributors) {
-            let scores = entryImpactScores.get(id);
-            if (scores === undefined) {
-                scores = [];
-                entryImpactScores.set(id, scores);
-            }
-            scores.push(buffWeight(context, weight).mul(impact.score));
+    }
+
+    const impactScores = new Map<Id, Vector>();
+    for (const id of data.entries.keys()) {
+        impactScores.set(id, newZeroVector(context));
+    }
+
+    for (let i = 0; i < data.impacts.length; i++) {
+        const impact = data.impacts[i];
+        for (const [entry, weight] of impact.contributors) {
+            impactScores.get(entry)?.add(
+                weight.mul(impactEmbeddedScores[i]),
+            );
         }
     }
 
-    for (const [id, entry] of entries) {
-        entry.impactScore = combineVectors(
-            context,
-            entryImpactScores.get(id) ?? [],
-        );
-    }
+    return impactScores;
 }
 
-function fillRelationReferences(
-    context: Context,
+function topoSortEntries(
+    _context: Context,
     data: Data,
-    entries: Map<Id, CalcEntry>,
-) {
+): Id[][] {
+    const entryGraph = new Graph({ directed: true });
+    for (const id of data.entries.keys()) {
+        entryGraph.setNode(id);
+    }
     for (const relation of data.relations) {
-        const flattenedContributors = flattenContainContribGraph(
-            context,
-            relation.contributors,
-            (id) => entries.get(id)?.flattenedParentMap,
-        );
+        for (const contrib of relation.contributors.keys()) {
+            if (!data.entries.has(contrib)) {
+                continue;
+            }
+            for (const ref of relation.references.keys()) {
+                if (!data.entries.has(ref)) {
+                    continue;
+                }
 
-        for (const [id, weight] of flattenedContributors) {
-            entries.get(id)!.relations.push([relation, weight]);
+                entryGraph.setEdge(ref, contrib);
+            }
         }
     }
+
+    const sccs = alg.tarjan(entryGraph);
+    const idToScc = new Map<Id, number>();
+    for (let i = 0; i < sccs.length; i++) {
+        for (const id of sccs[i]) {
+            idToScc.set(id, i);
+        }
+    }
+
+    const sccGraph = new Graph({ directed: true });
+    for (let i = 0; i < sccs.length; i++) {
+        sccGraph.setNode(i.toString());
+    }
+
+    for (const entry of data.entries.keys()) {
+        const sccId = idToScc.get(entry);
+        if (sccId === undefined) {
+            continue;
+        }
+
+        const succs = entryGraph.successors(entry);
+        if (succs === undefined) {
+            continue;
+        }
+
+        for (const succ of succs) {
+            const succSccId = idToScc.get(succ);
+            if (succSccId === undefined || succSccId === sccId) {
+                continue;
+            }
+
+            sccGraph.setEdge(sccId.toString(), succSccId.toString());
+        }
+    }
+
+    const order = alg.topsort(sccGraph);
+    return order.map((id) => sccs[parseInt(id)]);
 }
-class ReoccurrenceStack<T> {
-    maxOccurrences: number;
-    data: Map<T, number>;
 
-    constructor(maxOccurrences = 8) {
-        this.maxOccurrences = maxOccurrences;
-        this.data = new Map<T, number>();
-    }
-
-    push(obj: T): boolean {
-        const occurrences = (this.data.get(obj) ?? 0) + 1;
-        this.data.set(obj, occurrences);
-        return occurrences <= this.maxOccurrences;
-    }
-
-    pop(obj: T) {
-        const occurrences = this.data.get(obj);
-        if (occurrences === undefined) {
-            throw new Error("push/pop not match");
+function createRelationMaps(relations: Relation[]): Map<Id, Map<Id, Matrix>> {
+    const relationMaps = new Map<Id, Map<Id, Matrix>>();
+    const addRelation = (contrib: Id, ref: Id, matrix: Matrix) => {
+        if (!relationMaps.has(contrib)) {
+            relationMaps.set(contrib, new Map<Id, Matrix>());
         }
 
-        if (occurrences === 1) {
-            this.data.delete(obj);
+        const existingMatrix = relationMaps.get(contrib)!.get(ref);
+        if (existingMatrix === undefined) {
+            relationMaps.get(contrib)!.set(ref, matrix);
         } else {
-            this.data.set(obj, occurrences - 1);
+            existingMatrix.add(matrix);
+        }
+    };
+
+    for (const relation of relations) {
+        for (const [contrib, contribWeight] of relation.contributors) {
+            for (const [ref, refWeight] of relation.references) {
+                const matrix = contribWeight.mul(refWeight);
+                addRelation(contrib, ref, matrix);
+            }
         }
     }
+
+    return relationMaps;
 }
 
-function calcRelationScore(
-    context: Context,
-    _: Data,
-    entries: Map<Id, CalcEntry>,
-) {
-    function calcSingle(
-        entry: CalcEntry,
-        stack = new ReoccurrenceStack<Id>(),
-    ): Vector {
-        const relationScores: Vector[] = [];
-        if (stack.push(entry.entry.id)) {
-            for (const [relation, weight] of entry.relations) {
-                let relationScore: Vector | undefined = undefined;
-                for (const [refId, refWeight] of relation.references) {
-                    const ref = entries.get(refId);
-                    if (ref === undefined) {
-                        if (isNullEntryId(context, refId)) {
-                            continue;
-                        } else {
-                            throw new Error(`entry not found ${refId}`);
+export function processContext(context: Context, data: Data): Map<Id, Result> {
+    ifDefined(
+        context.extensions.DAH_entry_roles,
+        (e) => e.preprocessData(context, data),
+    );
+
+    const positiveConstScores = constScoreCalc(context, data, 1.0);
+    const negativeConstScores = constScoreCalc(context, data, -1.0);
+    const entrySccs = topoSortEntries(context, data);
+
+    const embeddedTotalScores = new Map<Id, [Vector, Vector]>();
+    const results = new Map<Id, Result>();
+
+    const relations = createRelationMaps(data.relations);
+
+    for (const entryScc of entrySccs) {
+        const idToIndexMap = new Map<Id, number>();
+        for (let i = 0; i < entryScc.length; i++) {
+            idToIndexMap.set(entryScc[i], i);
+        }
+
+        const N = context.factorScoreCombineWeight.data.length;
+        const equationMatrix = identityMathJs(
+            N * entryScc.length,
+        ) as MathJsMatrix;
+        const subAssign = (i: number, j: number, amt: number) => {
+            equationMatrix.set([i, j], equationMatrix.get([i, j]) - amt);
+        };
+
+        for (let i = 0; i < entryScc.length; i++) {
+            const entryId = entryScc[i];
+            const refs = relations.get(entryId);
+            if (refs === undefined) {
+                continue;
+            }
+
+            for (const [ref, refWeight] of refs) {
+                const embeddedRefScore = embeddedTotalScores.get(ref);
+                if (embeddedRefScore !== undefined) {
+                    const [posRef, negRef] = embeddedRefScore;
+                    positiveConstScores.get(entryId)!.add(
+                        refWeight.mul(posRef),
+                    );
+                    negativeConstScores.get(entryId)!.add(
+                        refWeight.mul(negRef),
+                    );
+                } else {
+                    assert(entryScc.includes(ref));
+                    const j = entryScc.indexOf(ref);
+                    assert(j >= 0);
+
+                    // subAssign refWeight from equationMatrix[i*N:(i+1)*N, j*N:(j+1)*N]
+                    for (let ip = 0; ip < N; ++ip) {
+                        for (let jp = 0; jp < N; ++jp) {
+                            const w = refWeight.get(ip, jp);
+                            subAssign(i * N + ip, j * N + jp, w);
                         }
                     }
-
-                    const refRelationScore = calcSingle(ref, stack);
-                    const refOverallScore = ref.impactScore!.copy();
-                    refOverallScore!.add(refRelationScore);
-                    if (relationScore === undefined) {
-                        relationScore = refWeight.mul(refOverallScore);
-                    } else {
-                        relationScore.add(refWeight.mul(refOverallScore));
-                    }
-                }
-
-                if (relationScore !== undefined) {
-                    relationScores.push(
-                        buffWeight(context, weight).mul(relationScore),
-                    );
                 }
             }
         }
 
-        stack.pop(entry.entry.id);
+        const equationRhs = [
+            new Array<number>(N * entryScc.length),
+            new Array<number>(N * entryScc.length),
+        ];
+        for (let i = 0; i < entryScc.length; ++i) {
+            const entryId = entryScc[i];
+            const positiveConst = positiveConstScores.get(entryId)!;
+            const negativeConst = negativeConstScores.get(entryId)!;
+            for (let j = 0; j < N; ++j) {
+                equationRhs[0][i * N + j] = positiveConst.data[j];
+                equationRhs[1][i * N + j] = negativeConst.data[j];
+            }
+        }
 
-        return combineVectors(context, relationScores);
+        const positiveScores = lusolve(
+            equationMatrix,
+            mathjsMatrix(equationRhs[0]),
+        );
+        const negativeScores = lusolve(
+            equationMatrix,
+            mathjsMatrix(equationRhs[1]),
+        );
+
+        for (let i = 0; i < entryScc.length; ++i) {
+            const result = {
+                positiveScore: newZeroVector(context),
+                negativeScore: newZeroVector(context),
+                overallVector: newZeroVector(context),
+                DAH_meta: {},
+            };
+            for (let j = 0; j < N; ++j) {
+                result.positiveScore.data[j] = positiveScores.get([
+                    i * N + j,
+                    0,
+                ])!;
+                result.negativeScore.data[j] = negativeScores.get([
+                    i * N + j,
+                    0,
+                ])!;
+            }
+
+            embeddedTotalScores.set(
+                entryScc[i],
+                [result.positiveScore, result.negativeScore],
+            );
+            result.positiveScore = unembed(context, result.positiveScore);
+            result.negativeScore = unembed(context, result.negativeScore);
+            result.overallVector.add(result.positiveScore);
+            result.overallVector.add(result.negativeScore.mul(-1));
+
+            results.set(entryScc[i], result);
+        }
     }
 
-    for (const [_, entry] of entries) {
-        entry.relationScore = calcSingle(entry);
-    }
+    return processResults(context, data, results);
+}
+
+export function newZeroVector(context: Context): Vector {
+    return context.factorScoreCombineWeight.mul(0.0);
 }
 
 function processResults(
     context: Context,
     data: Data,
-    entries: Map<Id, CalcEntry>,
+    results: Map<Id, Result>,
 ): Map<Id, Result> {
-    const results = new Map<Id, Result>();
-    for (const [id, entry] of entries) {
-        entry.impactScore = entry.impactScore ?? newZeroVector(context);
-        const overallVector = entry.impactScore.copy();
-        overallVector.add(entry.relationScore!);
-        const result: Result = {
-            totalImpact: entry.impactScore!,
-            totalRelation: entry.relationScore!,
-            overallVector,
-            DAH_meta: {},
-        };
-
-        results.set(id, result);
-    }
-
-    ifDefined(context.extensions.DAH_overall_score, (ext) =>
-        ext.postProcess(context, results),
+    ifDefined(
+        context.extensions.DAH_overall_score,
+        (ext) => ext.postProcess(context, results),
     );
 
-    ifDefined(context.extensions.DAH_anime_normalize, (ext) =>
-        ext.postProcess(context, results),
+    ifDefined(
+        context.extensions.DAH_anime_normalize,
+        (ext) => ext.postProcess(context, results),
     );
 
-    ifDefined(context.extensions.DAH_serialize_json, (ext) => {
-        ext.serialize(data, results);
-    });
+    ifDefined(
+        context.extensions.DAH_serialize_json,
+        (ext) => ext.serialize(data, results),
+    );
 
     return results;
 }

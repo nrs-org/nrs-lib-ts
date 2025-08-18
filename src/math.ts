@@ -22,6 +22,10 @@ export class Vector {
         }
     }
 
+    mul(scalar: number): Vector {
+        return new Vector(this.data.map((x) => x * scalar));
+    }
+
     toJSON() {
         return toJSONVector(this);
     }
@@ -36,6 +40,10 @@ export class ScalarMatrix {
 
     copy(): ScalarMatrix {
         return new ScalarMatrix(this.data);
+    }
+
+    get(i: number, j: number): number {
+        return i === j ? this.data : 0.0;
     }
 
     add(other: Matrix): Matrix {
@@ -98,6 +106,10 @@ export class DiagonalMatrix {
 
     copy(): DiagonalMatrix {
         return new DiagonalMatrix(this.data);
+    }
+
+    get(i: number, j: number): number {
+        return i === j ? this.data[i] : 0.0;
     }
 
     add(matrix: Matrix): Matrix {
@@ -165,6 +177,10 @@ export class RegularMatrix {
 
     copy(): RegularMatrix {
         return new RegularMatrix(this.data);
+    }
+
+    get(i: number, j: number): number {
+        return this.data[i * this.dimensions() + j];
     }
 
     dimensions(): number {
@@ -245,8 +261,8 @@ export class RegularMatrix {
         for (let i = 0; i < n; ++i) {
             for (let j = 0; j < n; ++j) {
                 for (let k = 0; k < n; ++k) {
-                    result.data[i * n + j] +=
-                        this.data[k * n + j] * matrix.data[i * n + k];
+                    result.data[i * n + j] += this.data[k * n + j] *
+                        matrix.data[i * n + k];
                 }
             }
         }

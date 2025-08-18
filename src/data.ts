@@ -7,13 +7,9 @@ export interface Meta {
 
 export type Id = string;
 
-// deno-lint-ignore no-empty-interface
 export interface EntryMeta extends Meta {}
-// deno-lint-ignore no-empty-interface
 export interface ImpactMeta extends Meta {}
-// deno-lint-ignore no-empty-interface
 export interface RelationMeta extends Meta {}
-// deno-lint-ignore no-empty-interface
 export interface ResultMeta extends Meta {}
 
 export interface HasMeta<M extends Meta> {
@@ -22,7 +18,6 @@ export interface HasMeta<M extends Meta> {
 
 export interface Entry extends HasMeta<EntryMeta> {
     id: Id;
-    children: Map<Id, Matrix>;
 }
 
 export interface Impact extends HasMeta<ImpactMeta> {

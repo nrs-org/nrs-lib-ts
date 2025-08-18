@@ -21,8 +21,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Setup Deno
-        uses: denolib/setup-deno@master
+        uses: denoland/setup-deno@v2
         with:
-          deno-version: 1.x
+          deno-version: 2.x
       - name: Run tests
         run: deno test --allow-read

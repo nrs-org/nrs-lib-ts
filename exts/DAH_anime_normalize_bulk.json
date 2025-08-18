@@ -2,7 +2,6 @@
     "entries": {
         "A-MAL-1": {
             "id": "A-MAL-1",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-1 base anime (Appalling)",
                 "DAH_entry_type": "Anime",
@@ -16,7 +15,6 @@
         },
         "A-MAL-2": {
             "id": "A-MAL-2",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-2 base anime (Horrible)",
                 "DAH_entry_type": "Anime",
@@ -30,7 +28,6 @@
         },
         "A-MAL-3": {
             "id": "A-MAL-3",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-3 base anime (Very Bad)",
                 "DAH_entry_type": "Anime",
@@ -44,7 +41,6 @@
         },
         "A-MAL-4": {
             "id": "A-MAL-4",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-4 base anime (Bad)",
                 "DAH_entry_type": "Anime",
@@ -58,7 +54,6 @@
         },
         "A-MAL-5": {
             "id": "A-MAL-5",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-5 base anime (Average)",
                 "DAH_entry_type": "Anime",
@@ -72,7 +67,6 @@
         },
         "A-MAL-6": {
             "id": "A-MAL-6",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-6 base anime (Fine)",
                 "DAH_entry_type": "Anime",
@@ -86,7 +80,6 @@
         },
         "A-MAL-7": {
             "id": "A-MAL-7",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-7 base anime (Good)",
                 "DAH_entry_type": "Anime",
@@ -100,7 +93,6 @@
         },
         "A-MAL-8": {
             "id": "A-MAL-8",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-8 base anime (Very Good)",
                 "DAH_entry_type": "Anime",
@@ -114,7 +106,6 @@
         },
         "A-MAL-9": {
             "id": "A-MAL-9",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-9 base anime (Great)",
                 "DAH_entry_type": "Anime",
@@ -128,7 +119,6 @@
         },
         "A-MAL-10": {
             "id": "A-MAL-10",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-10 base anime (Masterpiece)",
                 "DAH_entry_type": "Anime",
@@ -142,7 +132,6 @@
         },
         "M-VGMDB-1": {
             "id": "M-VGMDB-1",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-10 base anime sample music",
                 "DAH_entry_type": "MusicAlbumTrack",
@@ -151,7 +140,6 @@
         },
         "M-VGMDB-2": {
             "id": "M-VGMDB-2",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-10 base anime sample music",
                 "DAH_entry_type": "MusicAlbumTrack",
@@ -160,7 +148,6 @@
         },
         "M-VGMDB-3": {
             "id": "M-VGMDB-3",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-10 base anime sample music",
                 "DAH_entry_type": "MusicAlbumTrack",
@@ -169,7 +156,6 @@
         },
         "M-VGMDB-4": {
             "id": "M-VGMDB-4",
-            "children": {},
             "DAH_meta": {
                 "DAH_entry_title": "MAL-10 base anime sample music",
                 "DAH_entry_type": "MusicAlbumTrack",
@@ -1452,31 +1438,33 @@
     ],
     "scores": {
         "A-MAL-1": {
-            "totalImpact": {
+            "positiveScore": {
                 "AL": 0.14300000000000002,
-                "AV": 0.1466666666666667,
-                "B": 0.2,
-                "A": -2
+                "AV": 0.14666666666666667,
+                "B": 0.19999999999999998
             },
-            "totalRelation": {},
+            "negativeScore": {
+                "A": 2
+            },
             "overallVector": {
                 "AL": 0.14300000000000002,
-                "AV": 0.1466666666666667,
-                "B": 0.2,
+                "AV": 0.14666666666666667,
+                "B": 0.19999999999999998,
                 "A": -2
             },
             "DAH_meta": {
-                "DAH_overall_score": -1.5543333333333333
+                "DAH_overall_score": -1.5647094773584107
             }
         },
         "A-MAL-2": {
-            "totalImpact": {
+            "positiveScore": {
                 "AL": 0.36000000000000004,
                 "AV": 0.2933333333333334,
-                "B": 0.4,
-                "A": -1
+                "B": 0.4
             },
-            "totalRelation": {},
+            "negativeScore": {
+                "A": 1
+            },
             "overallVector": {
                 "AL": 0.36000000000000004,
                 "AV": 0.2933333333333334,
@@ -1484,65 +1472,65 @@
                 "A": -1
             },
             "DAH_meta": {
-                "DAH_overall_score": -0.03466666666666651
+                "DAH_overall_score": -0.06814403369500477
             }
         },
         "A-MAL-3": {
-            "totalImpact": {
+            "positiveScore": {
                 "AL": 0.36000000000000004,
                 "AV": 0.44,
                 "B": 0.5
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
                 "AL": 0.36000000000000004,
                 "AV": 0.44,
                 "B": 0.5
             },
             "DAH_meta": {
-                "DAH_overall_score": 1.1680000000000001
+                "DAH_overall_score": 1.151194755431156
             }
         },
         "A-MAL-4": {
-            "totalImpact": {
+            "positiveScore": {
                 "AL": 0.36000000000000004,
                 "AV": 0.45999999999999996,
                 "B": 0.6
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
                 "AL": 0.36000000000000004,
                 "AV": 0.45999999999999996,
                 "B": 0.6
             },
             "DAH_meta": {
-                "DAH_overall_score": 1.282
+                "DAH_overall_score": 1.2681704989216072
             }
         },
         "A-MAL-5": {
-            "totalImpact": {
+            "positiveScore": {
                 "AL": 0.8400000000000001,
                 "AV": 0.6133333333333333,
                 "B": 0.8
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
                 "AL": 0.8400000000000001,
                 "AV": 0.6133333333333333,
                 "B": 0.8
             },
             "DAH_meta": {
-                "DAH_overall_score": 2.0693333333333337
+                "DAH_overall_score": 1.986630995901391
             }
         },
         "A-MAL-6": {
-            "totalImpact": {
+            "positiveScore": {
                 "AP": 2.1,
                 "AL": 1.0499999999999998,
                 "AV": 0.8333333333333334,
                 "B": 0.9
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
                 "AP": 2.1,
                 "AL": 1.0499999999999998,
@@ -1550,36 +1538,36 @@
                 "B": 0.9
             },
             "DAH_meta": {
-                "DAH_overall_score": 4.633333333333334
+                "DAH_overall_score": 4.5340822064461435
             }
         },
         "A-MAL-7": {
-            "totalImpact": {
-                "AP": 3.5,
+            "positiveScore": {
+                "AP": 3.5000000000000004,
                 "AL": 1.7280000000000002,
                 "AV": 0.8333333333333334,
                 "B": 1
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
-                "AP": 3.5,
+                "AP": 3.5000000000000004,
                 "AL": 1.7280000000000002,
                 "AV": 0.8333333333333334,
                 "B": 1
             },
             "DAH_meta": {
-                "DAH_overall_score": 6.811333333333334
+                "DAH_overall_score": 6.635052514394717
             }
         },
         "A-MAL-8": {
-            "totalImpact": {
+            "positiveScore": {
                 "AP": 4,
                 "CU": 4,
                 "AL": 2.295,
                 "AV": 1,
                 "B": 1
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
                 "AP": 4,
                 "CU": 4,
@@ -1588,59 +1576,34 @@
                 "B": 1
             },
             "DAH_meta": {
-                "DAH_overall_score": 10.395
+                "DAH_overall_score": 9.828269961060293
             }
         },
         "A-MAL-9": {
-            "totalImpact": {
-                "AP": 5.3,
-                "CU": 5.505943568517638,
+            "positiveScore": {
+                "AP": 5.339328464418443,
+                "CU": 5.126417941841417,
                 "AL": 2.736,
                 "AV": 1.1666666666666667,
                 "B": 1
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
-                "AP": 5.3,
-                "CU": 5.505943568517638,
+                "AP": 5.339328464418443,
+                "CU": 5.126417941841417,
                 "AL": 2.736,
                 "AV": 1.1666666666666667,
                 "B": 1
             },
             "DAH_meta": {
-                "DAH_overall_score": 13.156232807777249
-            }
-        },
-        "A-MAL-10": {
-            "totalImpact": {
-                "AP": 5.3,
-                "MP": 2.75,
-                "CU": 6.394314777962656,
-                "AL": 4,
-                "AV": 1.3333333333333333,
-                "B": 1
-            },
-            "totalRelation": {
-                "AM": 0.45876000000000006
-            },
-            "overallVector": {
-                "AP": 5.3,
-                "MP": 2.75,
-                "CU": 6.394314777962656,
-                "AL": 4,
-                "AV": 1.3333333333333333,
-                "AM": 0.45876000000000006,
-                "B": 1
-            },
-            "DAH_meta": {
-                "DAH_overall_score": 15.410079053399889
+                "DAH_overall_score": 12.213016581512404
             }
         },
         "M-VGMDB-1": {
-            "totalImpact": {
+            "positiveScore": {
                 "AM": 1.5
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
                 "AM": 1.5
             },
@@ -1649,10 +1612,10 @@
             }
         },
         "M-VGMDB-2": {
-            "totalImpact": {
+            "positiveScore": {
                 "AM": 1.7999999999999998
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
                 "AM": 1.7999999999999998
             },
@@ -1661,10 +1624,10 @@
             }
         },
         "M-VGMDB-3": {
-            "totalImpact": {
+            "positiveScore": {
                 "AM": 2.0999999999999996
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
                 "AM": 2.0999999999999996
             },
@@ -1673,15 +1636,39 @@
             }
         },
         "M-VGMDB-4": {
-            "totalImpact": {
+            "positiveScore": {
                 "AM": 2.4000000000000004
             },
-            "totalRelation": {},
+            "negativeScore": {},
             "overallVector": {
                 "AM": 2.4000000000000004
             },
             "DAH_meta": {
                 "DAH_overall_score": 2.4000000000000004
+            }
+        },
+        "A-MAL-10": {
+            "positiveScore": {
+                "AP": 5.339328464418443,
+                "MP": 2.75,
+                "CU": 6.779225635010986,
+                "AL": 4,
+                "AV": 1.3333333333333333,
+                "AM": 1.8844074045348913,
+                "B": 1
+            },
+            "negativeScore": {},
+            "overallVector": {
+                "AP": 5.339328464418443,
+                "MP": 2.75,
+                "CU": 6.779225635010986,
+                "AL": 4,
+                "AV": 1.3333333333333333,
+                "AM": 1.8844074045348913,
+                "B": 1
+            },
+            "DAH_meta": {
+                "DAH_overall_score": 16.37966892793311
             }
         }
     }

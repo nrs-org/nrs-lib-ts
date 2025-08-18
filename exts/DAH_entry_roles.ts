@@ -1,15 +1,17 @@
+import { Context, mapAddAssign } from "../mod.ts";
+import { Data } from "../mod.ts";
 import {
     DiagonalMatrix,
     Entry,
     Id,
+    identityMatrix,
     Impact,
     Matrix,
     Relation,
     ScalarMatrix,
-    identityMatrix,
-    mapAddAssign,
 } from "../mod.ts";
-import { AM, AV, AL, factorScores } from "./DAH_factors.ts";
+import { DAH_entry_contains } from "./DAH_entry_contains.ts";
+import { AL, AM, AV, factorScores } from "./DAH_factors.ts";
 
 export class DAH_entry_roles {
     config: ExtConfig_DAH_entry_roles;
@@ -18,13 +20,17 @@ export class DAH_entry_roles {
     }
 
     dependencies(): string[] {
-        return ["DAH_factors"];
+        return ["DAH_factors", "DAH_entry_contains"];
+    }
+
+    DAH_entry_contains(context: Context): DAH_entry_contains {
+        return context.extensions.DAH_entry_contains!;
     }
 
     addRole(
         object: Entry | Impact | Relation,
         entryId: Id,
-        roles: Iterable<EntryRole>
+        roles: Iterable<EntryRole>,
     ) {
         let entryRoles = object.DAH_meta.DAH_entry_roles;
         if (entryRoles === undefined) {
@@ -56,14 +62,22 @@ export class DAH_entry_roles {
                     thisEntryRoles.push(role);
                 } else {
                     existingRole.multiplyFactor += role.multiplyFactor;
-                    existingRole.expressionString +=
-                        "+" + role.expressionString;
+                    existingRole.expressionString += "+" +
+                        role.expressionString;
                 }
             }
         }
     }
 
-    preprocessEntries(entries: Map<Id, Entry>) {
+    preprocessData(context: Context, data: Data) {
+        const relations = this.preprocessEntries(context, data.entries);
+        this.preprocessIRs(data.impacts);
+        this.preprocessIRs(data.relations);
+        data.relations.push(...relations);
+    }
+
+    preprocessEntries(context: Context, entries: Map<Id, Entry>): Relation[] {
+        const relations: Relation[] = [];
         for (const [id, entry] of entries.entries()) {
             const roles = entry.DAH_meta.DAH_entry_roles;
             if (roles === undefined) {
@@ -71,15 +85,15 @@ export class DAH_entry_roles {
             }
 
             const factors = this.#calculateFactors(entry, roles);
-            for (const [parent, weight] of factors.entries()) {
-                const children = entries.get(parent)?.children;
-                if (children === undefined) {
-                    continue;
-                }
-
-                mapAddAssign(children, id, weight);
-            }
+            relations.push(
+                this.DAH_entry_contains(context).entryContains(
+                    context,
+                    factors,
+                    id,
+                ),
+            );
         }
+        return relations;
     }
 
     preprocessIRs(irs: Iterable<Impact | Relation>) {
@@ -143,24 +157,24 @@ export class DAH_entry_roles {
                     ...role,
                     roleType,
                 };
-            }
+            },
         );
     }
 
     #calculateFactors(
         entry: Entry | Impact | Relation,
-        roles: EntryRoles<AtomicRoleType>
+        roles: EntryRoles<AtomicRoleType>,
     ): Map<Id, Matrix> {
         const atomicRoles = new Set<AtomicRoleType>(
             Object.values(roles.roles)
                 .flat()
-                .map((role) => role.roleType)
+                .map((role) => role.roleType),
         );
 
         const musicVars = {
             ...defaultMusicVars(
                 atomicRoles,
-                "contributors" in entry ? undefined : entry
+                "contributors" in entry ? undefined : entry,
             ),
             ...this.config.defaultMusicVars,
             ...roles.musicVars,
@@ -188,7 +202,7 @@ export class DAH_entry_roles {
 
             for (const role of entryRoles) {
                 role.factor = calcRoleFactor(role.roleType).scale(
-                    role.multiplyFactor
+                    role.multiplyFactor,
                 );
                 total = total.add(role.factor);
             }
@@ -281,7 +295,7 @@ function getComposingAtomicRoleTypes(role: RoleType): AtomicRoleType[] {
 
 function defaultMusicVars(
     roles: Set<AtomicRoleType>,
-    entry?: Entry
+    entry?: Entry,
 ): Required<MusicVars> {
     const title = entry?.DAH_meta.DAH_entry_title ?? "";
     const titleHasFeat = title.includes("feat.") || title.includes("ft.");
@@ -297,12 +311,12 @@ function defaultMusicVars(
 type CalcFactorHelperFn = (role: RoleType) => Matrix;
 type CalcFactorFn = (
     factor: CalcFactorHelperFn,
-    vars: Required<MusicVars>
+    vars: Required<MusicVars>,
 ) => Matrix;
 
 function AMMatrix(factor: number): DiagonalMatrix {
     const matrix = new DiagonalMatrix(
-        new Array<number>(factorScores.length).fill(0)
+        new Array<number>(factorScores.length).fill(0),
     );
     matrix.data[AM.factorIndex] = factor;
     return matrix;
@@ -310,7 +324,7 @@ function AMMatrix(factor: number): DiagonalMatrix {
 
 function ALMatrix(factor: number): DiagonalMatrix {
     const matrix = new DiagonalMatrix(
-        new Array<number>(factorScores.length).fill(0)
+        new Array<number>(factorScores.length).fill(0),
     );
     matrix.data[AL.factorIndex] = factor;
     return matrix;
@@ -330,7 +344,7 @@ type AtomicRoleTypeObject = CalcFactorFn;
 
 function composite(
     children: RoleType[],
-    calcFactor?: CalcFactorFn
+    calcFactor?: CalcFactorFn,
 ): CompositeRoleTypeObjectInit {
     return {
         children,
@@ -339,7 +353,7 @@ function composite(
 }
 
 function initComposite(
-    obj: Record<CompositeRoleType, CompositeRoleTypeObjectInit>
+    obj: Record<CompositeRoleType, CompositeRoleTypeObjectInit>,
 ): Record<CompositeRoleType, CompositeRoleTypeObject> {
     const partial = {} as Partial<
         Record<CompositeRoleType, CompositeRoleTypeObject>
@@ -363,8 +377,7 @@ function initComposite(
             return recursive(role);
         });
 
-        const calcFactor =
-            obj[type].calcFactor ??
+        const calcFactor = obj[type].calcFactor ??
             ((factor) =>
                 expandedChildren
                     .map(factor)
@@ -399,7 +412,7 @@ const AtomicRoleTypes: Record<AtomicRoleType, AtomicRoleTypeObject> = {
             identityMatrix
                 .scale(vars.emolyrics)
                 .add(ALMatrix(1.0 - vars.emolyrics)) // set AL to 1.0
-                .add(AMMatrix(vars.lyricsmusic - vars.emolyrics)) // set AM to vars.lyricsmusic
+                .add(AMMatrix(vars.lyricsmusic - vars.emolyrics)), // set AM to vars.lyricsmusic
         ),
     mv: () => DiagonalMatrix.fromFactors([[AV, 1.0]]),
     albumart: () => DiagonalMatrix.fromFactors([[AV, 1.0]]),
@@ -409,25 +422,31 @@ const AtomicRoleTypes: Record<AtomicRoleType, AtomicRoleTypeObject> = {
 // vocal: C4/3A4/3IP4/3V4I2:L10
 
 const CompositeRoleTypes = initComposite({
-    music_total: composite(["prod", "perform", "image_total"], (factor) =>
-        factor("total")
+    music_total: composite(
+        ["prod", "perform", "image_total"],
+        (factor) => factor("total"),
     ),
-    image_total: composite(["image", "image_feat"], (factor) =>
-        factor("music_total").scale(0.2)
+    image_total: composite(
+        ["image", "image_feat"],
+        (factor) => factor("music_total").scale(0.2),
     ),
-    vocal_lyrics: composite(["vocal", "lyrics"], (factor, vars) =>
-        factor("music_total")
-            .add(factor("image_total").scale(-1))
-            .mul(
-                new ScalarMatrix(vars.vocallyrics).add(
-                    ALMatrix(1.0 - vars.vocallyrics)
-                )
-            )
+    vocal_lyrics: composite(
+        ["vocal", "lyrics"],
+        (factor, vars) =>
+            factor("music_total")
+                .add(factor("image_total").scale(-1))
+                .mul(
+                    new ScalarMatrix(vars.vocallyrics).add(
+                        ALMatrix(1.0 - vars.vocallyrics),
+                    ),
+                ),
     ),
-    inst_total: composite(["inst", "inst_perform"], (factor) =>
-        factor("music_total")
-            .add(factor("image_total").scale(-1))
-            .add(factor("vocal_lyrics").scale(-1))
+    inst_total: composite(
+        ["inst", "inst_perform"],
+        (factor) =>
+            factor("music_total")
+                .add(factor("image_total").scale(-1))
+                .add(factor("vocal_lyrics").scale(-1)),
     ),
     inst: composite(["compose", "arrange"]),
     perform: composite(["inst_perform", "vocal"]),
