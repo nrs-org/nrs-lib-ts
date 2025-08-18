@@ -654,23 +654,24 @@ export class DAH_standards {
         potential: number,
         effect: number,
     ): Relation {
+        const base = 0.4;
         return {
             contributors,
             references: new Map([
                 [
                     reference,
                     DiagonalMatrix.fromFactors([
-                        [AP, 0.2 * potential * effect * 2.0],
-                        [AU, 0.1 * potential * effect * 2.0],
-                        [CP, 0.05 * potential * effect * 2.0],
-                        [CU, 0.05 * potential * effect * 2.0],
-                        [MP, 0.2 * potential * effect * 2.0],
-                        [MU, 0.1 * potential * effect * 2.0],
-                        [AV, 0.0 * potential * effect * 2.0],
-                        [AL, 0.1 * potential * effect * 2.0],
-                        [AM, 0.1 * potential * effect * 2.0],
-                        [Boredom, 0.1 * potential * effect * 2.0],
-                        [Additional, 0.0 * potential * effect * 2.0],
+                        [AP, 0.2 * potential * effect * base],
+                        [AU, 0.1 * potential * effect * base],
+                        [CP, 0.05 * potential * effect * base],
+                        [CU, 0.05 * potential * effect * base],
+                        [MP, 0.2 * potential * effect * base],
+                        [MU, 0.1 * potential * effect * base],
+                        [AV, 0.0 * potential * effect * base],
+                        [AL, 0.1 * potential * effect * base],
+                        [AM, 0.1 * potential * effect * base],
+                        [Boredom, 0.1 * potential * effect * base],
+                        [Additional, 0.0 * potential * effect * base],
                     ]),
                 ],
             ]),
