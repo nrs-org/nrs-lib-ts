@@ -240,7 +240,8 @@ export type CompositeRoleType =
     | "perform"
     | "vocal_lyrics"
     | "inst"
-    | "inst_total";
+    | "inst_total"
+    | "inst_writing";
 
 export type RoleType = AtomicRoleType | CompositeRoleType;
 
@@ -399,9 +400,8 @@ function initComposite(
 
 const AtomicRoleTypes: Record<AtomicRoleType, AtomicRoleTypeObject> = {
     total: () => identityMatrix,
-    arrange: (factor, vars) =>
-        factor("inst_total").scale((vars.arrange * 2) / 3),
-    compose: (factor) => factor("inst_total").add(factor("arrange").scale(-1)),
+    arrange: (factor, vars) => factor("inst_writing").scale(vars.arrange),
+    compose: (factor) => factor("inst_writing").add(factor("arrange").scale(-1)),
     inst_perform: (factor) => factor("inst_total").scale(1 / 3),
     image: (factor, vars) => factor("image_total").scale(vars.feat ? 0.7 : 1.0),
     image_feat: (factor) =>
@@ -442,11 +442,15 @@ const CompositeRoleTypes = initComposite({
                 ),
     ),
     inst_total: composite(
-        ["inst", "inst_perform"],
+        ["inst_writing", "inst_perform"],
         (factor) =>
             factor("music_total")
                 .add(factor("image_total").scale(-1))
                 .add(factor("vocal_lyrics").scale(-1)),
+    ),
+    inst_writing: composite(
+        ["compose", "arrange"],
+        (factor) => factor("inst_total").scale(2 / 3),
     ),
     inst: composite(["compose", "arrange"]),
     perform: composite(["inst_perform", "vocal"]),
