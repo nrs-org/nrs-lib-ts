@@ -240,7 +240,8 @@ export type CompositeRoleType =
     | "perform"
     | "vocal_lyrics"
     | "inst"
-    | "inst_total";
+    | "inst_total"
+    | "inst_writing";
 
 export type RoleType = AtomicRoleType | CompositeRoleType;
 
@@ -278,6 +279,10 @@ export interface MusicVars {
     //      generic rst idolshit song: 0.5 (default)
     //      sukinano song: 0.5-0.7 (nanou ily but the sukinano arrangers are so fucking goated)
     arrange?: number;
+    // how much of inst_total goes to performing (the rest goes to writing)
+    // e.g. fully instrumental improv piece: 0.5-0.7
+    //      typical composed/arranged track: 1/3 (default)
+    instperform?: number;
     // true if there is featured artist (feat. stuff), default is false
     // self-explanatory af but here's examples
     // e.g. dbnguhoc - man i love koseki (feat. nayuta): true
@@ -304,6 +309,7 @@ function defaultMusicVars(
         lyricsmusic: 0.1,
         emolyrics: 0.2,
         arrange: 0.5,
+        instperform: 1 / 3,
         feat: roles.has("image_feat") || titleHasFeat,
     };
 }
@@ -399,10 +405,9 @@ function initComposite(
 
 const AtomicRoleTypes: Record<AtomicRoleType, AtomicRoleTypeObject> = {
     total: () => identityMatrix,
-    arrange: (factor, vars) =>
-        factor("inst_total").scale((vars.arrange * 2) / 3),
-    compose: (factor) => factor("inst_total").add(factor("arrange").scale(-1)),
-    inst_perform: (factor) => factor("inst_total").scale(1 / 3),
+    arrange: (factor, vars) => factor("inst_writing").scale(vars.arrange),
+    compose: (factor) => factor("inst_writing").add(factor("arrange").scale(-1)),
+    inst_perform: (factor, vars) => factor("inst_total").scale(vars.instperform),
     image: (factor, vars) => factor("image_total").scale(vars.feat ? 0.7 : 1.0),
     image_feat: (factor) =>
         factor("image_total").add(factor("image").scale(-1)),
@@ -442,11 +447,15 @@ const CompositeRoleTypes = initComposite({
                 ),
     ),
     inst_total: composite(
-        ["inst", "inst_perform"],
+        ["inst_writing", "inst_perform"],
         (factor) =>
             factor("music_total")
                 .add(factor("image_total").scale(-1))
                 .add(factor("vocal_lyrics").scale(-1)),
+    ),
+    inst_writing: composite(
+        ["compose", "arrange"],
+        (factor) => factor("inst_total").add(factor("inst_perform").scale(-1)),
     ),
     inst: composite(["compose", "arrange"]),
     perform: composite(["inst_perform", "vocal"]),
